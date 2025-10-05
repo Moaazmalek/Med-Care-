@@ -2,11 +2,14 @@ import { NavLink, useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import logo from "../../assets/logo_option_2.png";
+import logo from "../../assets/med-care-logo.svg";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const {user,loading}=useSelector((state:RootState) => state.auth);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -40,8 +43,16 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button
+        
+            <div className="hidden md:flex items-center space-x-4">
+              {loading ? (<>
+              <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
+              <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
+              </>): user ? (
+                <p>Welcome {user.name }</p>
+              ):(
+                <>
+              <Button
               variant="ghost"
               onClick={() => navigate("/login")}
               className="text-white bg-chart-2 hover:bg-chart-2/90 hover:text-white transition-all duration-200 cursor-pointer" 
@@ -53,8 +64,12 @@ const Navbar = () => {
               className="bg-primary hover:bg-primary/90 text-white cursor-pointer"
             >
               Sign Up
-            </Button>
+            </Button></>
+              )}
+             
+            
           </div>
+          
 
           {/* Mobile Menu Button */}
           <button

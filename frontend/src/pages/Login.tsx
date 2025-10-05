@@ -4,8 +4,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import logo from '../assets/logo_option_2.png'
+import type { AppDispatch } from '@/redux/store'
+import { useDispatch } from 'react-redux'
+import { loginUser } from '@/redux/slices/authSlice'
+import { toast } from 'react-toastify'
 
 const Login = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: '',
@@ -21,7 +26,8 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    alert('Login successful!')
+    dispatch(loginUser(formData))
+    toast.success('Login successful!')
     navigate('/')
   }
 

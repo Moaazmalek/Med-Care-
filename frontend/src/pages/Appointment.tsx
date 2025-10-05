@@ -72,6 +72,7 @@ const Appointment = () => {
     toast.success(
       `Appointment booked with ${doctorInfo.name}`
     )
+    console.log(`Booked ${doctorInfo.name} on ${doctorSlot[slotIndex][0].datetime.toDateString()} at ${selectedTime}`)
   }
 
   useEffect(() => {
