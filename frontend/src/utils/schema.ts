@@ -18,3 +18,21 @@ export interface AuthState {
     loading:boolean,
     error:null|string
 }
+export interface Doctor extends User{
+    speciality:string;
+    fees:number;
+    experience:string;  
+    degree:string;
+    about:string;
+    available:boolean;
+    slots_booked:object;
+    date?:number
+
+}
+
+export interface AdminState {
+    doctors:Doctor[] ,
+    users:User[] ,
+    loading:boolean,
+    error:null|string
+}
