@@ -9,6 +9,7 @@ import type { AppDispatch, RootState } from '@/redux/store'
 import { addDoctor, changeAvailability, fetchDoctor } from '@/redux/slices/doctorSlice'
 import { toast } from 'react-toastify'
 import MyLoader from '@/components/Global/MyLoader'
+import { updateDoctorAvailability } from '@/redux/slices/adminSlice'
 
 const Doctors = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -333,11 +334,15 @@ if (loading) {
             type="checkbox"
             id={`available-${doctor._id}`}
             checked={doctor.available} // should come from your doctor state
-            onChange={(e) => {
-              // update the doctor availability in state or dispatch Redux action
-              // Example: dispatch(updateDoctorAvailability({ id: doctor._id, available: e.target.checked }))
-              console.log(doctor._id, e.target.checked)
-              dispatch(changeAvailability({id:doctor._id,available:e.target.checked}))
+            onChange={async(e) => {
+              const isAvailable=e.target.checked;
+              dispatch(updateDoctorAvailability({id:doctor._id,available:isAvailable}));
+              try {
+                await dispatch(changeAvailability({id:doctor._id,available:isAvailable})).unwrap();
+                toast.success(`Doctor is now ${isAvailable ? "available" : "unavailable"}`);
+              } catch (error) {
+                toast.error(error || "Failed to change availability");
+              }
             }}
             className="w-4 h-4 rounded border-gray-300"
           />

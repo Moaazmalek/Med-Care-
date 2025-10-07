@@ -10,6 +10,7 @@ import type { AppDispatch, RootState } from '@/redux/store'
 import MyLoader from '@/components/Global/MyLoader'
 import { fetchDoctorById } from '@/redux/slices/doctorSlice'
 import type { Doctor } from '@/utils/schema'
+import { bookAppointment, fetchAppointmentsByDoctor } from '@/redux/slices/appointmentSlice'
 
 const Appointment = () => {
   const { docId } = useParams()
@@ -18,6 +19,8 @@ const Appointment = () => {
   const [slotIndex, setSlotIndex] = useState<number>(0)
   const [selectedTime, setSelectedTime] = useState<string>('')  
   const {doctors,loading,error}=useSelector((state:RootState) => state.doctor)
+  const {user}=useSelector((state:RootState) => state.auth)
+  // const {appointments}=useSelector((state:RootState) => state.appointment)
   const dispatch=useDispatch<AppDispatch>();
 
   const getAvailableSlots = () => {
@@ -35,13 +38,17 @@ const Appointment = () => {
   endTime.setHours(21, 0, 0, 0) // 9:00 PM
 
   const timeSlots: any[] = []
+  const dateKey=currentDate.toISOString().split('T')[0];
   while (startTime < endTime) {
-    const formattedTime = startTime.toLocaleTimeString([], {
+    const dateTime=new Date(startTime)
+    const formattedTime = dateTime.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     })
+    const isBooked=doctorInfo?.slots_booked?.[dateKey]?.includes(formattedTime) || false;
+    if(!isBooked)
     timeSlots.push({
-      datetime: new Date(startTime),
+      datetime: dateTime,
       time: formattedTime,
     })
     startTime.setMinutes(startTime.getMinutes() + 30)
@@ -56,16 +63,33 @@ const Appointment = () => {
     setDoctorSlot(allSlots)
   }
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!doctorInfo || !doctorSlot[slotIndex] || !selectedTime) {
       toast.error('Please select a date and time slot')
       return
     }
-    // const selectedDate = doctorSlot[slotIndex][0].datetime.toDateString()
-    toast.success(
-      `Appointment booked with ${doctorInfo.user.name}`
-    )
-    console.log(`Booked ${doctorInfo.user.name} on ${doctorSlot[slotIndex][0].datetime.toDateString()} at ${selectedTime}`)
+
+    const bookingDate=doctorSlot[slotIndex][0].datetime.toISOString().split('T')[0];
+   await dispatch(bookAppointment({
+    userId:user._id,
+    doctorId:doctorInfo._id,
+    date:bookingDate,
+    time:selectedTime
+   }))
+   .unwrap()
+ // 1️⃣ Update doctorInfo.slots_booked locally
+    const updatedSlotsBooked = { ...doctorInfo.slots_booked }
+    if (!updatedSlotsBooked[bookingDate]) updatedSlotsBooked[bookingDate] = []
+    updatedSlotsBooked[bookingDate].push(selectedTime)
+
+    setDoctorInfo({
+      ...doctorInfo,
+      slots_booked: updatedSlotsBooked
+    })
+
+    // 2️⃣ Clear selection
+    setSelectedTime('')
+    setSlotIndex(0)
   }
 
   useEffect(() => {
@@ -84,6 +108,11 @@ const Appointment = () => {
   useEffect(() => {
     if (doctorInfo) getAvailableSlots()
   }, [doctorInfo])
+useEffect(() => {
+  if (doctorInfo?._id) {
+    dispatch(fetchAppointmentsByDoctor(doctorInfo._id))
+  }
+}, [doctorInfo, dispatch])
 
   if(loading ){
     return <MyLoader/>

@@ -42,6 +42,12 @@ export interface Doctor {
 }
 
 export interface AdminState {
+    dashboardData:{
+        totalUsers:number,
+        totalDoctors:number,
+        totalAppointments:number
+    }  | null,
+    appointments:Appointment[],
     doctors:Doctor[],
     users:User[] ,
     loading:boolean,
@@ -57,4 +63,25 @@ export interface UserState {
 user:User | null;
 loading:boolean;
 error:string | null;
+}
+export interface Appointment {
+    _id:string;
+    user:User;
+    doctor:Doctor;
+    date:string;
+    time:string;
+    amount:number;
+    reason?:string;
+    status:"pending" | "confirmed" | "completed" | "cancelled";
+    createdAt?:string;
+    updatedAt?:string;
+    bookedAt?:string;
+    payment?:boolean
+}
+
+export interface AppointmentState {
+    doctorAppointments:Appointment[];
+    userAppointments:Appointment[];
+    loading:boolean;
+    error:null|string
 }

@@ -221,7 +221,7 @@ if(loading){
                       onChange={handleChange}
                       disabled={!isEditing}
                       className={`w-full px-3 py-2 border rounded-md ${
-                        !isEditing ? 'bg-gray-50' : ''
+                        !isEditing ? 'bg-gray-100' : 'bg-white text-gray-900 '
                       }`}
                     >
                       <option value="male">Male</option>

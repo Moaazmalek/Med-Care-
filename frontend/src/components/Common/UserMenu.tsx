@@ -7,8 +7,9 @@ import { logout } from "@/redux/slices/authSlice";
 
 interface UserMenuProps {
   name: string;
+  role?: string;
 }
-const UserMenu = ({ name }: UserMenuProps) => {
+const UserMenu = ({ name, role }: UserMenuProps) => {
     const dispatch=useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -30,12 +31,17 @@ const UserMenu = ({ name }: UserMenuProps) => {
         <DropdownMenuItem onClick={() => navigate("/profile")}>
           <User size={16} className="mr-2" /> Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/appointments")}>
+        <DropdownMenuItem onClick={() => navigate("/my-appointments")}>
           <Calendar size={16} className="mr-2" /> Appointments
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut size={16} className="mr-2" /> Logout
         </DropdownMenuItem>
+        {role==="admin" && (
+          <DropdownMenuItem onClick={() => navigate("/admin")}>
+          <User size={16} className="mr-2" /> Admin Dashboard
+        </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

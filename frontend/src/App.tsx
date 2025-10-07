@@ -49,7 +49,7 @@ const App = () => {
         path="/admin"
         element={
           token && !user ? (
-            <div>Loading...</div>
+      <></>
           ):user?.role==="admin" ? (
             <AdminLayout/>
           ):(

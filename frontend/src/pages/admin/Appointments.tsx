@@ -1,35 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Search, MoreVertical } from 'lucide-react'
+import { Search, X } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '@/redux/store'
+import { cancelAppointment, fetchAppointments } from '@/redux/slices/adminSlice'
+import MyLoader from '@/components/Global/MyLoader'
 
 const Appointments = () => {
   const [searchTerm, setSearchTerm] = useState('')
+  const {appointments,loading}=useSelector((state:RootState) => state.admin)
+  const dispatch=useDispatch<AppDispatch>()
 
-  const appointments = [
-    { id: 1, patient: 'John Doe', doctor: 'Dr. Sarah Johnson', date: '2025-10-15', time: '10:00 AM', status: 'Confirmed' },
-    { id: 2, patient: 'Jane Smith', doctor: 'Dr. Michael Chen', date: '2025-10-15', time: '11:30 AM', status: 'Pending' },
-    { id: 3, patient: 'Bob Wilson', doctor: 'Dr. Emily Williams', date: '2025-10-15', time: '02:00 PM', status: 'Confirmed' },
-    { id: 4, patient: 'Alice Brown', doctor: 'Dr. James Brown', date: '2025-10-16', time: '09:00 AM', status: 'Confirmed' },
-    { id: 5, patient: 'Charlie Davis', doctor: 'Dr. Lisa Anderson', date: '2025-10-16', time: '03:30 PM', status: 'Cancelled' },
-    { id: 6, patient: 'David Miller', doctor: 'Dr. Sarah Johnson', date: '2025-10-17', time: '10:00 AM', status: 'Confirmed' },
-    { id: 7, patient: 'Emma Wilson', doctor: 'Dr. Michael Chen', date: '2025-10-17', time: '02:30 PM', status: 'Pending' },
-    { id: 8, patient: 'Frank Thomas', doctor: 'Dr. Emily Williams', date: '2025-10-18', time: '11:00 AM', status: 'Confirmed' },
-  ]
-
-  const getStatusColor = (status) => {
+  const getStatusColor = (status:string) => {
     switch (status) {
-      case 'Confirmed': return 'bg-green-100 text-green-700'
-      case 'Pending': return 'bg-yellow-100 text-yellow-700'
-      case 'Cancelled': return 'bg-red-100 text-red-700'
+      case 'completed': return 'bg-green-100 text-green-700'
+      case 'pending': return 'bg-yellow-100 text-yellow-700'
+      case 'cancelled': return 'bg-red-100 text-red-700'
       default: return 'bg-gray-100 text-gray-700'
     }
   }
 
+
+useEffect(() => {
+  if(!appointments.length) {
+    dispatch(fetchAppointments());
+  }
+  
+}, [dispatch,appointments.length])
+
+
   const filteredAppointments = appointments.filter(appointment =>
-    appointment.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    appointment.doctor.toLowerCase().includes(searchTerm.toLowerCase())
+    appointment.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    appointment.doctor.user.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+if (loading) {
+  return <MyLoader />;
+}
 
   return (
     <Card>
@@ -60,15 +68,30 @@ const Appointments = () => {
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Date</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Time</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Fees</th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAppointments.map((appointment) => (
-                <tr key={appointment.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">#{appointment.id}</td>
-                  <td className="py-3 px-4">{appointment.patient}</td>
-                  <td className="py-3 px-4">{appointment.doctor}</td>
+              {filteredAppointments.map((appointment,index) => (
+                <tr key={appointment._id} className="border-b hover:bg-gray-50">
+                  <td className="py-3 px-4">#{index + 1}</td>
+                  <td className="py-3 px-4">
+                    <div className="flex gap-3 items-center">
+                      <img 
+                      className="w-8 h-8 rounded-full "
+                      src={appointment.user.image} alt="" />
+                       {appointment.user.name}
+                    </div>
+                   </td>
+                  <td className="py-3 px-4">
+                    <div className="flex gap-3 items-center">
+                      <img 
+                      className="w-8 h-8 rounded-full object-cover "
+                      src={appointment.doctor.user.image} alt="Doctor" />
+                       {appointment.doctor.user.name}
+                    </div>
+                  </td>
                   <td className="py-3 px-4">{appointment.date}</td>
                   <td className="py-3 px-4">{appointment.time}</td>
                   <td className="py-3 px-4">
@@ -76,9 +99,18 @@ const Appointments = () => {
                       {appointment.status}
                     </span>
                   </td>
+                  <td className="py-3 px-4">${appointment.amount}</td>
                   <td className="py-3 px-4">
                     <button className="text-gray-600 hover:text-gray-900">
-                      <MoreVertical size={20} />
+                      {appointment.status !== 'cancelled' ? (
+                        <X className='w-6 h-6 cursor-pointer bg-red-300 rounded-full text-white'
+                      onClick={() => dispatch(cancelAppointment(appointment._id)).then(() => {
+                        dispatch(fetchAppointments());
+                      })}/>
+                      ):(
+                        <p className='text-red-500'>cancelled</p>
+                        
+                      )}
                     </button>
                   </td>
                 </tr>

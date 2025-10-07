@@ -50,7 +50,7 @@ const Navbar = () => {
               <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
               <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
               </>): user ? (
-                <UserMenu name={user.name}/>
+                <UserMenu name={user.name} role={user.role} />
               ):(
                 <>
               <Button

@@ -3,8 +3,12 @@ import { useNavigate, useLocation, Outlet } from 'react-router'
 import { Activity, Calendar, Users, LogOut, Menu, X } from 'lucide-react'
 import logo from "@/assets/logo_option_2.png"
 import UserMenu from '@/components/Common/UserMenu'
+import { useDispatch } from 'react-redux'
+import type{ AppDispatch } from '@/redux/store'
+import { logout } from '@/redux/slices/authSlice'
 
 const AdminLayout = () => {
+  const dispatch=useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -81,7 +85,7 @@ const AdminLayout = () => {
 
           <div className="absolute bottom-0 w-full p-6 border-t">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => dispatch(logout())}
               className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <LogOut size={20} />

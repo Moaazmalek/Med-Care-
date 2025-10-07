@@ -2,11 +2,13 @@ import {configureStore} from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import adminReducer from './slices/adminSlice';
 import doctorReducer from './slices/doctorSlice';
+import appointmentReducer from './slices/appointmentSlice';
 const store=configureStore({
     reducer:{
         auth:authReducer,
         admin:adminReducer,
-        doctor:doctorReducer
+        doctor:doctorReducer,
+        appointment:appointmentReducer
     }
 });
 
