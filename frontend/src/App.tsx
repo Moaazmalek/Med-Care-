@@ -17,6 +17,7 @@ import AdminLayout from "./pages/admin/AdminLayout"
 import AdminDashboard from "./pages/admin/Dashboard"
 import AdminDoctors from "./pages/admin/Doctors"
 import AdminAppointments from "./pages/admin/Appointments"
+import DoctorPanel from "./pages/doctor/DoctorPanel"
 
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
   useEffect(() => {
     if(token && !user){
       dispatch(fetchCurrentUser());
+
     }
   }, [user,dispatch,token])
 
@@ -66,14 +68,16 @@ const App = () => {
         path="/doctor"
         element={
           token && !user ? (
-            <div>Loading...</div>
+           <></>
           ):user?.role==="doctor" ? (
-            <div>Doctor panel</div>
+            <DoctorPanel/>
           ):(
             <Navigate to="/" />
           )
         }
-        ></Route>
+        >
+          
+        </Route>
        
      
      

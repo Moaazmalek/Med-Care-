@@ -42,6 +42,11 @@ const UserMenu = ({ name, role }: UserMenuProps) => {
           <User size={16} className="mr-2" /> Admin Dashboard
         </DropdownMenuItem>
         )}
+        {role==="doctor" && (
+          <DropdownMenuItem onClick={() => navigate("/doctor")}>
+          <User size={16} className="mr-2" /> Doctor Panel
+        </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
