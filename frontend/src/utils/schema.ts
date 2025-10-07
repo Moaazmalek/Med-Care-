@@ -52,3 +52,9 @@ export interface DoctorState {
     loading:boolean,
     error:null|string
 }
+
+export interface UserState {
+user:User | null;
+loading:boolean;
+error:string | null;
+}

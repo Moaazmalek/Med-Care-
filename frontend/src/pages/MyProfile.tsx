@@ -1,20 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { User, Mail, Phone, MapPin, Calendar } from 'lucide-react'
+import { toast } from 'react-toastify'
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '@/redux/store'
+import uploadArea from '@/assets/upload_area.svg'
+import { fetchCurrentUser } from '@/redux/slices/authSlice'
+import MyLoader from '@/components/Global/MyLoader'
+import { updateUserProfile } from '@/redux/slices/authSlice'
 
 const Profile = () => {
+  const { user ,loading} = useSelector((state:RootState) => state.auth)
+  const dispatch = useDispatch<AppDispatch>()
   const [isEditing, setIsEditing] = useState(false)
+  const [previewImage, setPreviewImage] = useState("")
+  const [profileImage, setProfileImage] = useState<File | null>(null)
   const [profileData, setProfileData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 987-6543',
-    address: '456 Patient Street, Health City, HC 54321',
-    dateOfBirth: '1985-05-15',
-    gender: 'Male',
+    name: "",
+    email:"",
+    phone: "",
+    address: "",
+    dateOfBirth:"",
+    gender:""
   })
+  useEffect(() => {
+    if(!user) {
+      dispatch(fetchCurrentUser())
+    }
+  },[user,dispatch])
+    useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+         dateOfBirth: user.dob ? user.dob.split('T')[0] : '',
+        gender: user.gender || '',
+      })
+      setPreviewImage(user.image || '')
+    }
+  }, [user])
 
+
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if(e.target.files && e.target.files[0]){
+      const file=e.target.files[0];
+      setProfileImage(file);
+      setPreviewImage(URL.createObjectURL(file));// to show immediate preview
+    }
+  }
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -25,23 +63,60 @@ const Profile = () => {
   }
 
   const handleSave = () => {
-    setIsEditing(false)
-    alert('Profile updated successfully!')
+   try {
+  const formData=new FormData();
+  formData.append("name",profileData.name);
+  formData.append("email",profileData.email);
+  formData.append("phone",profileData.phone);
+  formData.append("address",profileData.address || "");
+  formData.append("dob",profileData.dateOfBirth || "");
+  formData.append("gender",profileData.gender || "");
+  if(profileImage){
+    formData.append("image",profileImage);
   }
+  dispatch(updateUserProfile(formData));
+toast.success("Profile updated successfully!");
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   } catch (error:any) {
+    console.error("Error updating profile:", error);
+    toast.error("Failed to update profile. Please try again.");
+   }
+  }
+useEffect(() => {
+  return () => {
+    if (previewImage) URL.revokeObjectURL(previewImage);
+  };
+}, [previewImage]);
 
+if(loading){
+  return <MyLoader/>
+}
   return (
     <div >
       
       <div className="flex-grow bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
+          {/* <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1> */}
 
           <Card>
             <CardContent className="p-8">
               {/* Profile Picture */}
               <div className="flex flex-col items-center mb-8">
-                <div className="w-32 h-32 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center mb-4">
-                  <User size={64} className="text-white" />
+                <div className="w-32 h-32  mb-4 relative">
+                  <img 
+                    src={previewImage || uploadArea}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full border border-gray-300"
+                  />
+                  {isEditing && (
+                    <input 
+                    type="file"
+                    accept='image/*'
+                    onChange={handleImageChange}
+                    className='absolute bottom-0 right-0 w-full h-full opacity-0 cursor-pointer'
+                    />
+                  )}
+          
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">{profileData.name}</h2>
                 <p className="text-gray-600">{profileData.email}</p>
@@ -76,9 +151,10 @@ const Profile = () => {
                       <Input
                         type="email"
                         name="email"
+
                         value={profileData.email}
                         onChange={handleChange}
-                        disabled={!isEditing}
+                        disabled={true}
                         className={!isEditing ? 'bg-gray-50' : ''}
                       />
                     </div>
@@ -148,9 +224,9 @@ const Profile = () => {
                         !isEditing ? 'bg-gray-50' : ''
                       }`}
                     >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="not specified">Not Specified</option>
                     </select>
                   </div>
                 </div>
@@ -162,12 +238,13 @@ const Profile = () => {
                       <Button
                         variant="outline"
                         onClick={() => setIsEditing(false)}
+                        className='cursor-pointer'
                       >
                         Cancel
                       </Button>
                       <Button
                         onClick={handleSave}
-                        className="bg-primary hover:bg-primary/90 text-white"
+                        className="bg-chart-2 hover:bg-chart-2/90 cursor-pointer text-white"
                       >
                         Save Changes
                       </Button>
@@ -175,7 +252,7 @@ const Profile = () => {
                   ) : (
                     <Button
                       onClick={() => setIsEditing(true)}
-                      className="bg-primary hover:bg-primary/90 text-white"
+                      className="bg-chart-2 hover:bg-chart-2/90 cursor-pointer text-white"
                     >
                       Edit Profile
                     </Button>

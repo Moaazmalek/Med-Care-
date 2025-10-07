@@ -27,8 +27,8 @@ const userSchema=new mongoose.Schema({
         default:"not specified"
     },
     dob:{
-        type:String,
-        default:"not specified"
+        type:Date,
+        default:Date.now
     },
     phone:{
         type:String,
