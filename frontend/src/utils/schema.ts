@@ -18,7 +18,18 @@ export interface AuthState {
     loading:boolean,
     error:null|string
 }
-export interface Doctor extends User{
+export interface Doctor {
+    _id:string;
+    user:{
+        _id:string;
+        name:string;
+        email:string;
+        image:string;
+        phone:string;
+        dob:string
+        role:'user'|'admin' | 'doctor';
+        address:string
+    };
     speciality:string;
     fees:number;
     experience:string;  
@@ -31,8 +42,13 @@ export interface Doctor extends User{
 }
 
 export interface AdminState {
-    doctors:Doctor[] ,
+    doctors:Doctor[],
     users:User[] ,
+    loading:boolean,
+    error:null|string
+}
+export interface DoctorState {
+    doctors:Doctor[],
     loading:boolean,
     error:null|string
 }

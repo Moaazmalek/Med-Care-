@@ -8,9 +8,9 @@ import {v2 as cloudinary} from 'cloudinary'
 
 const addDoctor=async (req, res) => {
     try {
-        const { name, email,password, speciality,fees,address,experience,degree,about } = req.body;
+        const { name, email,password, speciality,fees,address,experience,degree,about,phone } = req.body;
         const imageFile=req.file
-        if (!name || !email || !password || !speciality || !fees || !address || !experience || !degree || !about || !imageFile) {
+        if (!name || !email || !password || !speciality || !fees || !address || !experience || !degree || !about || !phone || !imageFile) {
             return res.status(400).json({success:false,message:"Missing details"});
         }
         
@@ -34,7 +34,7 @@ const addDoctor=async (req, res) => {
         }
         const user=await User.create({
             name,email,password,role:"doctor"
-            ,image:imageUrl,address
+            ,image:imageUrl,address,phone
         })
         
         const doctor=new Doctor({
@@ -46,9 +46,11 @@ const addDoctor=async (req, res) => {
             about,
             date:Date.now(),
         });
-       await doctor.save();
-       
-        res.status(201).json({success:true,message:"Doctor added successfully",doctor})
+        await doctor.save();
+    const populatedDoctor=await doctor.populate("user","name email phone image dob role")
+
+
+        res.status(201).json({success:true,message:"Doctor added successfully",doctor:populatedDoctor})
 
     } catch (error) {
         console.error(error);
@@ -60,7 +62,7 @@ const addDoctor=async (req, res) => {
 // API for getting all doctors
 const getAllDoctors=async (req,res)=>{
     try {
-        const doctors=await Doctor.find().populate("user","name email ");
+        const doctors=await Doctor.find().populate("user","name email phone image dob role address ");
         res.json({success:true,doctors});
     } catch (error) {
         console.log(error);

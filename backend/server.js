@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoute.js';
 import connectDB from './config/mongodb.js';
 import connectCloudinary from './config/cloudinary.js';
 import adminRoutes from './routes/adminRoute.js';
+import doctorRoutes from './routes/doctorRoute.js';
 
 
 //app config
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/doctor",doctorRoutes)
 app.get("/",(req,res) => {
     res.send("API WORKING...")
 })

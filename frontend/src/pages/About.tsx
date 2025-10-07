@@ -13,7 +13,7 @@ const About = () => {
     <div>
       <div className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-teal-50 to-white py-16 px-4">
+        <section className="bg-gradient-to-br from-teal-50 to-white pt-16 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">

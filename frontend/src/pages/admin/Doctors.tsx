@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Search, UserPlus, Edit, Trash2 } from 'lucide-react'
 import uploadArea from '@/assets/upload_area.svg'
-import { useDispatch } from 'react-redux'
-import type { AppDispatch } from '@/redux/store'
-import { addDoctor } from '@/redux/slices/adminSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import type { AppDispatch, RootState } from '@/redux/store'
+import { addDoctor, changeAvailability, fetchDoctor } from '@/redux/slices/doctorSlice'
 import { toast } from 'react-toastify'
+import MyLoader from '@/components/Global/MyLoader'
 
 const Doctors = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -28,14 +29,9 @@ const Doctors = () => {
     image:null as File | null
   })
   const previewUrl=newDoctor.image ? URL.createObjectURL(newDoctor.image) :  uploadArea
+  const {loading,doctors}=useSelector((state:RootState) => state.admin)
 
-  const doctors = [
-    { id: 1, name: 'Dr. Sarah Johnson', specialty: 'Cardiologist', experience: '15 years', email: 'sarah.j@medcare.com', phone: '+1 555-0101' },
-    { id: 2, name: 'Dr. Michael Chen', specialty: 'Neurologist', experience: '12 years', email: 'michael.c@medcare.com', phone: '+1 555-0102' },
-    { id: 3, name: 'Dr. Emily Williams', specialty: 'Pediatrician', experience: '10 years', email: 'emily.w@medcare.com', phone: '+1 555-0103' },
-    { id: 4, name: 'Dr. James Brown', specialty: 'Orthopedic', experience: '18 years', email: 'james.b@medcare.com', phone: '+1 555-0104' },
-    { id: 5, name: 'Dr. Lisa Anderson', specialty: 'Dermatologist', experience: '8 years', email: 'lisa.a@medcare.com', phone: '+1 555-0105' },
-  ]
+
    const handleImageChange=(e: React.ChangeEvent<HTMLInputElement>) => {
      const file = e.target.files?.[0];
      setNewDoctor({
@@ -43,10 +39,9 @@ const Doctors = () => {
        image: file
      });
    }
-  const handleAddDoctor = (e) => {
+  const handleAddDoctor = async(e) => {
     e.preventDefault()
-    alert('Doctor added successfully!')
-    setShowAddDoctor(false)
+    
     const formData = new FormData()
   formData.append("name", newDoctor.name)
   formData.append("speciality", newDoctor.speciality)
@@ -59,7 +54,8 @@ const Doctors = () => {
   formData.append("degree", newDoctor.degree)
   formData.append("about", newDoctor.about)
   formData.append("image", newDoctor.image)
-  dispatch(addDoctor(formData))
+  try {
+    await dispatch(addDoctor(formData)).unwrap();
   toast.success("Doctor added successfully")
     setNewDoctor({
       name: '',
@@ -73,7 +69,12 @@ const Doctors = () => {
       degree: '',
       about: '',
       image:null
-    })
+    });
+    setShowAddDoctor(false)
+    
+  } catch (error) {
+    toast.error(error || "Failed to add doctor ")
+  }
   }
 
   const handleInputChange = (e) => {
@@ -83,19 +84,29 @@ const Doctors = () => {
     })
   }
 
-  const filteredDoctors = doctors.filter(doctor =>
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+ const filteredDoctors = (doctors || []).filter((doctor) =>
+  (doctor.user.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+  (doctor.speciality?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+);
+useEffect(() => {
+  dispatch(fetchDoctor());
+ 
+}, [dispatch])
+
+
+if (loading) {
+  return <MyLoader />
+}
+
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row  gap-4 sm:items-center ">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <Input
             placeholder="Search doctors..."
-            className="pl-10 w-64"
+            className="pl-10 w-full sm:w-64"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -143,7 +154,7 @@ const Doctors = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Specialty</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">speciality</label>
                   <Input
                     name="speciality"
                     value={newDoctor.speciality}
@@ -254,7 +265,7 @@ const Doctors = () => {
         </Card>
       )}
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>All Doctors</CardTitle>
         </CardHeader>
@@ -264,7 +275,7 @@ const Doctors = () => {
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Name</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Specialty</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">speciality</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Experience</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Email</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Phone</th>
@@ -273,12 +284,12 @@ const Doctors = () => {
               </thead>
               <tbody>
                 {filteredDoctors.map((doctor) => (
-                  <tr key={doctor.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium">{doctor.name}</td>
-                    <td className="py-3 px-4">{doctor.specialty}</td>
+                  <tr key={doctor._id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4 font-medium">{doctor.user.name}</td>
+                    <td className="py-3 px-4">{doctor.speciality}</td>
                     <td className="py-3 px-4">{doctor.experience}</td>
-                    <td className="py-3 px-4">{doctor.email}</td>
-                    <td className="py-3 px-4">{doctor.phone}</td>
+                    <td className="py-3 px-4">{doctor.user.email}</td>
+                    <td className="py-3 px-4">{doctor.user.phone}</td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
                         <button className="text-blue-600 hover:text-blue-800">
@@ -295,7 +306,61 @@ const Doctors = () => {
             </table>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
+      <Card>
+  <CardHeader>
+    <CardTitle>All Doctors</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {filteredDoctors.map((doctor) => (
+        <div key={doctor._id} className="bg-white shadow rounded-lg overflow-hidden cursor-pointer">
+          {/* Doctor image */}
+          <img
+            src={doctor.user.image || uploadArea}
+            alt={doctor.user.name}
+            className="w-full h-40 object-contain hover:scale-110 transition-all duration-300"
+          />
+
+          {/* Doctor info */}
+          <div className="p-4">
+            <h3 className="text-lg font-semibold">{doctor.user.name}</h3>
+            <p className="text-gray-500">{doctor.speciality}</p>
+            <p className="text-sm text-gray-400">Experience: {doctor.experience}</p>
+          {/*Availability */}
+           <div className="mt-2 flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id={`available-${doctor._id}`}
+            checked={doctor.available} // should come from your doctor state
+            onChange={(e) => {
+              // update the doctor availability in state or dispatch Redux action
+              // Example: dispatch(updateDoctorAvailability({ id: doctor._id, available: e.target.checked }))
+              console.log(doctor._id, e.target.checked)
+              dispatch(changeAvailability({id:doctor._id,available:e.target.checked}))
+            }}
+            className="w-4 h-4 rounded border-gray-300"
+          />
+          <label htmlFor={`available-${doctor._id}`} className="text-gray-700 text-sm">
+            Available
+          </label>
+        </div>
+            {/* Actions */}
+            <div className="mt-3 flex space-x-2">
+              <button className="flex-1 bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 flex items-center justify-center gap-1">
+                <Edit size={16} /> Edit
+              </button>
+              <button className="flex-1 bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 flex items-center justify-center gap-1">
+                <Trash2 size={16} /> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </CardContent>
+</Card>
+
     </>
   )
 }

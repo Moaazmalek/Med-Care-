@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import logo from "../../assets/med-care-logo.svg";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
+import UserMenu from "./UserMenu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,7 +50,7 @@ const Navbar = () => {
               <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
               <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
               </>): user ? (
-                <p>Welcome {user.name }</p>
+                <UserMenu name={user.name}/>
               ):(
                 <>
               <Button

@@ -15,9 +15,16 @@ import {
 } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
+import type { AppDispatch, RootState } from '@/redux/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect } from 'react'
+import MyLoader from '@/components/Global/MyLoader'
+import { fetchDoctor } from '@/redux/slices/doctorSlice'
 
 const Home = () => {
   const navigate = useNavigate()
+  const dispatch=useDispatch<AppDispatch>()
+  const {doctors,loading}=useSelector((state:RootState) => state.doctor)
 
   const specialties = [
     { name: 'General Physician', icon: Stethoscope, color: 'bg-teal-100 text-teal-600' },
@@ -30,50 +37,17 @@ const Home = () => {
     { name: 'Gastroenterologist', icon: Pill, color: 'bg-yellow-100 text-yellow-600' },
   ]
 
-  const topDoctors = [
-    {
-      id: 1,
-      name: 'Dr. Sarah Johnson',
-      specialty: 'Cardiologist',
-      experience: '15 years',
-      available: true,
-    },
-    {
-      id: 2,
-      name: 'Dr. Michael Chen',
-      specialty: 'Neurologist',
-      experience: '12 years',
-      available: true,
-    },
-    {
-      id: 3,
-      name: 'Dr. Emily Williams',
-      specialty: 'Pediatrician',
-      experience: '10 years',
-      available: false,
-    },
-    {
-      id: 4,
-      name: 'Dr. James Brown',
-      specialty: 'Orthopedic',
-      experience: '18 years',
-      available: true,
-    },
-    {
-      id: 5,
-      name: 'Dr. Lisa Anderson',
-      specialty: 'Dermatologist',
-      experience: '8 years',
-      available: true,
-    },
-    {
-      id: 6,
-      name: 'Dr. Robert Taylor',
-      specialty: 'General Physician',
-      experience: '20 years',
-      available: true,
-    },
-  ]
+ 
+  useEffect(() => {
+    if (!doctors.length) {
+      dispatch(fetchDoctor());
+    }
+   
+  }, [dispatch])
+  
+  if(loading) {
+    return <MyLoader/>
+  }
 
   return <>
 <section className="bg-gradient-to-br from-teal-50 to-white py-16 px-4">
@@ -142,16 +116,20 @@ const Home = () => {
             <p className="text-gray-600">Meet our highly qualified and experienced doctors</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {topDoctors.map((doctor) => (
+            {doctors.map((doctor) => (
               <Card 
-                key={doctor.id}
+                key={doctor._id}
                 className="cursor-pointer hover:shadow-lg transition-all duration-300"
-                onClick={() => {navigate(`/appointment/${doctor.id}`)}}
+                onClick={() => {navigate(`/appointment/${doctor._id}`)}}
               >
                 <CardContent className="p-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full mx-auto mb-4"></div>
-                  <h3 className="font-semibold text-lg text-gray-900 text-center">{doctor.name}</h3>
-                  <p className="text-gray-600 text-center">{doctor.specialty}</p>
+                  <img
+            src={doctor.user.image }
+            alt={doctor.user.name}
+            className="w-full h-40 object-contain bg-gradient-to-r from-teal-400 to-teal-500 "
+          />
+                  <h3 className="font-semibold text-lg text-gray-900 text-center">{doctor.user.name}</h3>
+                  <p className="text-gray-600 text-center">{doctor.speciality}</p>
                   <p className="text-sm text-gray-500 text-center mt-2">{doctor.experience} experience</p>
                   <div className="mt-4 flex justify-center">
                     {doctor.available ? (
