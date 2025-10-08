@@ -46,3 +46,17 @@ export const getAllDoctors=async (req,res)=>{
         res.status(500).json({success:false,message:error.message});
     }
 }
+
+export const getDoctorByToken=async(req,res) => {
+    try {
+        const doctor=req.doctor;
+        if(!doctor){
+            return res.json({success:false,message:"Doctor not found"})
+        }
+        const populatedDoctor=await doctor.populate("user","name email phone image role address")
+         res.json({ success: true, message: "Doctor fetched successfully", doctor:populatedDoctor });
+    } catch (error) {
+        res.json({success:false,message:"Server error"})
+        
+    }
+}
