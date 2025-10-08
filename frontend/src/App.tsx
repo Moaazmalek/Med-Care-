@@ -17,7 +17,10 @@ import AdminLayout from "./pages/admin/AdminLayout"
 import AdminDashboard from "./pages/admin/Dashboard"
 import AdminDoctors from "./pages/admin/Doctors"
 import AdminAppointments from "./pages/admin/Appointments"
-import DoctorPanel from "./pages/doctor/DoctorPanel"
+import DoctorLayout from "./pages/doctor/DoctorLayout"
+import Dashboard from "./pages/doctor/Dashboard"
+import Appointments from "./pages/doctor/Appointments"
+import { Patients } from "./pages/doctor/Patients"
 
 
 const App = () => {
@@ -70,14 +73,19 @@ const App = () => {
           token && !user ? (
            <></>
           ):user?.role==="doctor" ? (
-            <DoctorPanel/>
+            <DoctorLayout/>
           ):(
             <Navigate to="/" />
           )
         }
         >
-          
+          <Route index element={<Navigate to="dashboard"/>}/>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="appointments" element={<Appointments />} />
+          <Route path="patients" element={<Patients />} />
         </Route>
+              
+
        
      
      

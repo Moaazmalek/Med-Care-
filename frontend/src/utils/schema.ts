@@ -54,6 +54,7 @@ export interface AdminState {
     error:null|string
 }
 export interface DoctorState {
+    doctor:Doctor | null,
     doctors:Doctor[],
     loading:boolean,
     error:null|string

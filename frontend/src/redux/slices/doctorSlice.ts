@@ -6,6 +6,7 @@ import type { DoctorState, Doctor } from "../../utils/schema";
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const initialState: DoctorState = {
+  doctor:null,
   doctors: [] as Doctor[],
   loading: false,
   error: null,
@@ -107,6 +108,31 @@ export const fetchDoctorById=createAsyncThunk<
   }
 });
 
+export const fetchCurrentDoctor=createAsyncThunk<{success:boolean;doctor:Doctor},void,{rejectValue:string}>(
+  "doctor/fetchCurrentDoctor",
+  async(_, { rejectWithValue,getState}) => {
+    const state=getState() as {auth:{token:string | null}}
+    const token=state.auth.token;
+    if(!token){
+        return rejectWithValue("No auth token found")
+    }
+    try {
+        const {data}=await axios.get(`${BACKEND_API}/api/doctor/me`,{
+            headers:{
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if(data.success){
+            return data;
+        } else{
+            return rejectWithValue(data.message || "Failed to fetch doctor");
+        }
+    } catch (error) {
+        return rejectWithValue(error.response.data.message || "Server error");
+    }
+  }
+);
+
 const doctorSlice = createSlice({
   name: "doctors",
   initialState,
@@ -185,6 +211,20 @@ const doctorSlice = createSlice({
       .addCase(fetchDoctorById.rejected,(state,action)=>{
         state.loading=false;
         state.error=action.payload || "Failed to fetch doctor";
+      })
+      .addCase(fetchCurrentDoctor.pending,(state)=>{
+        state.loading=true;
+        state.error=null;
+      })
+      .addCase(fetchCurrentDoctor.fulfilled,(state,action:PayloadAction<{success:boolean;doctor:Doctor}>)=>{
+        state.loading=false;
+        if(action.payload.success && action.payload.doctor){
+          state.doctor=action.payload.doctor;
+        }
+      })
+      .addCase(fetchCurrentDoctor.rejected,(state,action)=>{
+        state.loading=false;
+        state.error=action.payload || "Failed to fetch current doctor";
       });
 
   },
