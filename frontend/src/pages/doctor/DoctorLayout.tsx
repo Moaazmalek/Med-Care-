@@ -8,6 +8,7 @@ import type{ AppDispatch,  RootState } from "@/redux/store"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchCurrentDoctor } from "@/redux/slices/doctorSlice"
 import MyLoader from "@/components/Global/MyLoader"
+import { logout } from "@/redux/slices/authSlice"
 const DoctorLayout = () => {
       const [sidebarOpen, setSidebarOpen] = useState(false)
       const dispatch=useDispatch<AppDispatch>();
@@ -110,6 +111,7 @@ const DoctorLayout = () => {
 
           <div className="absolute bottom-0 w-full p-6 border-t">
             <button
+            onClick={() => dispatch(logout())}
                           
                           className="w-full h-full flex items-center justify-center md:justify-start gap-3 
                           px-4 py-3 rounded-lg  transition-all duration-300 cursor-pointer

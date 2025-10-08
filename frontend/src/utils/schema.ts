@@ -54,6 +54,22 @@ export interface AdminState {
     error:null|string
 }
 export interface DoctorState {
+    patients:{
+        patient:{
+            _id:string;
+            name:string;
+            email:string;
+            phone:string;
+            age:number
+        },
+        totalVisits:number,
+        lastVisit:string
+    }[] ,
+    dashboardData:{
+        appointmentsCount:number,
+        patientsCount:number,
+        earnings:number
+    } | null,
     doctor:Doctor | null,
     doctors:Doctor[],
     loading:boolean,
@@ -83,6 +99,7 @@ export interface Appointment {
 export interface AppointmentState {
     doctorAppointments:Appointment[];
     userAppointments:Appointment[];
+    todaysAppointments:Appointment[];
     loading:boolean;
     error:null|string
 }

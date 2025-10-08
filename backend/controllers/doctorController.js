@@ -1,4 +1,6 @@
+import Appointment from '../models/Appointment.js';
 import Doctor from '../models/Doctor.js'
+import { calculateAge } from '../utils/helper.js';
 
 
 export const changeAvailability=async(req,res) => {
@@ -59,4 +61,81 @@ export const getDoctorByToken=async(req,res) => {
         res.json({success:false,message:"Server error"})
         
     }
+}
+
+
+export const getDoctorDashboardData=async(req,res) => {
+    try {
+        const doctor=req.doctor;
+        if(!doctor){
+            return res.json({success:false,message:"Doctor not found"})
+        }
+        const appointmentsCount=await Appointment.countDocuments({doctor:doctor._id});
+        const patient=await Appointment.distinct("user",{doctor:doctor._id})
+        console.log("PATIENT",patient)
+        const patientsCount=patient.length;
+
+        const completedAppointment=await Appointment.find({
+            doctor:doctor._id,
+            status:"completed"
+        })
+        const earnings=completedAppointment.reduce((sum,app) => sum + (app.amount || 0),0);
+        
+         res.json({ success: true, message: "Doctor dashboard data fetched successfully",data:{
+                appointmentsCount,
+                patientsCount,
+                earnings
+         } });
+    } catch (error) {
+        console.error(error)
+        res.json({success:false,message:"Server error"})
+
+    }
+}
+
+
+export const getDoctorPatients=async(req,res) => {
+    try {
+       
+
+        const appointments=await Appointment.find({doctor:req.doctor._id}).populate("user");
+
+        const patientsMap= new Map();
+
+        appointments.forEach(appt => {
+            const user=appt.user;
+            if(!user) return ;
+            const id=user._id.toString();
+            if(!patientsMap.has(id)){
+                patientsMap.set(id,{
+                    patient:{
+                        _id:user.id,
+                        name:user.name,
+                        email:user.email,
+                        phone:user.phone,
+                        age:calculateAge(user.dob.toString()),
+                    },
+                    totalVisits:1,
+                    lastVisit:appt.date
+                });
+
+            }else {
+                const existing = patientsMap.get(id);
+                existing.totalVisits +=1;
+                if(new Date(appt.date) > new Date(existing.lastVisit)){
+                    existing.lastVisit=appt.date;
+                };
+                patientsMap.set(id,existing)
+
+            }
+        });
+        const patientStats=Array.from(patientsMap.values());
+     res.json({success:true,patients:patientStats})
+        
+    } catch (error) {
+        console.error(error);
+        res.json({success:false,messaage:"Server error"})
+        
+    }
+   
 }

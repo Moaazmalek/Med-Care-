@@ -15,9 +15,11 @@ import { cancelAppointment } from '@/redux/slices/appointmentSlice';
 
 interface CancelAppointmentModalProps {
   appointmentId: string;
+  icon?: React.ReactNode;
+  onCancelled?: () => void; 
 }
 
-export const CancelAppointmentModal = ({ appointmentId }: CancelAppointmentModalProps) => {
+export const CancelAppointmentModal = ({ appointmentId, icon, onCancelled }: CancelAppointmentModalProps) => {
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,9 +30,9 @@ export const CancelAppointmentModal = ({ appointmentId }: CancelAppointmentModal
     try {
       await dispatch(cancelAppointment(appointmentId)).unwrap();
       setOpen(false);
+      onCancelled?.();
     } catch (error) {
       console.error(error);
-      alert('Failed to cancel appointment');
     } finally {
       setLoading(false);
     }
@@ -40,7 +42,7 @@ export const CancelAppointmentModal = ({ appointmentId }: CancelAppointmentModal
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive">Cancel Appointment</Button>
+         {icon?icon:<Button variant="destructive">Cancel Appointment</Button>}
       </DialogTrigger>
 
       <DialogContent>
