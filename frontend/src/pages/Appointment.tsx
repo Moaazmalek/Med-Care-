@@ -54,6 +54,14 @@ const Appointment = () => {
         });
         const isBooked =
           doctorInfo?.slots_booked?.[dateKey]?.includes(formattedTime) || false;
+
+          // Skip slots that are in the past for today's date
+          const isToday=dateKey===today.toISOString().split("T")[0];
+          if(isToday && dateTime <= today){
+            startTime.setMinutes(startTime.getMinutes() + 30)
+            continue;
+
+          }
         if (!isBooked)
           timeSlots.push({
             datetime: dateTime,

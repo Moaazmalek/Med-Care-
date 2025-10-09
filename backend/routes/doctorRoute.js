@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getDoctorById,getAllDoctors,getDoctorByToken ,getDoctorDashboardData,getDoctorPatients} from "../controllers/doctorController.js";
+import { getDoctorById,getAllDoctors,getDoctorByToken ,getDoctorDashboardData,getDoctorPatients,updateDoctorProfile} from "../controllers/doctorController.js";
 import { protectDoctor } from "../middleware/authMiddleware.js";
-
+import upload from "../middleware/multer.js";
 const router=Router()
 
 /**
@@ -29,6 +29,8 @@ router.get("/dashboard-data",protectDoctor,getDoctorDashboardData)
 
 router.get("/patients",protectDoctor,getDoctorPatients)
 
+
+router.put("/update-profile",protectDoctor,upload.single('image'),updateDoctorProfile)
 /**
  * @route /api/doctor/get-doctor-by-id
  * @method POST
@@ -36,6 +38,7 @@ router.get("/patients",protectDoctor,getDoctorPatients)
  * @access PRIVATE
  * @body {id}
  */
+
 
 router.get('/:id',getDoctorById);
 

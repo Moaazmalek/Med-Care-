@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from 'react'
 import { useNavigate, useLocation, Outlet } from 'react-router'
-import { Activity, Calendar, Users, LogOut, Menu, X } from 'lucide-react'
+import { Activity, Calendar, Users, LogOut, Menu, X, UserPen } from 'lucide-react'
 import logo from "@/assets/logo_option_2.png"
 import UserMenu from '@/components/Common/UserMenu'
 import { useDispatch } from 'react-redux'
@@ -57,6 +57,15 @@ const AdminLayout = () => {
             >
               <Users size={20} />
               <span className='hidden md:block'>Doctors</span>
+            </button>
+            <button
+              onClick={() => { navigate('/profile'); setSidebarOpen(false); }}
+              className={`w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('/profile') ? 'bg-chart-2 text-white' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <UserPen size={20} />
+              <span className='hidden md:block'>My Profile</span>
             </button>
           </nav>
 

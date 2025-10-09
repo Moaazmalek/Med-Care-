@@ -28,9 +28,11 @@ const UserMenu = ({ name, role }: UserMenuProps) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={() => navigate("/profile")}>
+         {role !=="doctor" && (
+          <DropdownMenuItem onClick={() => navigate("/profile")}>
           <User size={16} className="mr-2" /> Profile
         </DropdownMenuItem>
+         )}
         <DropdownMenuItem onClick={() => navigate("/my-appointments")}>
           <Calendar size={16} className="mr-2" /> Appointments
         </DropdownMenuItem>

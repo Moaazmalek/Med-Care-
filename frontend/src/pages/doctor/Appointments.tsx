@@ -96,9 +96,12 @@ if(!doctorAppointments){
 
               <div className="flex items-center gap-3">
                 <img
-                  src={appointment.user.image || uploadArea}
+                  src={appointment?.user?.image ? appointment.user.image : uploadArea}
                   alt="Patient"
                   className="w-12 h-12 rounded-full object-cover border"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = uploadArea;
+                  }}
                 />
                 <div>
                   <h3 className="font-semibold text-gray-900">{appointment.user.name}</h3>
@@ -110,9 +113,12 @@ if(!doctorAppointments){
 
               <div className="flex items-center gap-3">
                 <img
-                  src={appointment.doctor.user.image || uploadArea}
+                  src={appointment?.doctor?.user?.image ? appointment.doctor.user.image : uploadArea}
                   alt="Doctor"
                   className="w-12 h-12 rounded-full object-cover border"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = uploadArea;
+                  }}
                 />
                 <div>
                   <h3 className="font-semibold text-gray-900">{appointment.doctor.user.name}</h3>

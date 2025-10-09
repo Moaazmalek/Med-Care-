@@ -68,9 +68,12 @@ export const Patients = () => {
                 {/* Patient Info */}
                 <div className="flex items-center gap-3">
                   <img
-                    src={patient.image || uploadArea}
+                    src={patient?.image ? patient.image : uploadArea}
                     alt={patient.name}
                     className="w-12 h-12 rounded-full object-cover border"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = uploadArea;
+                    }}
                   />
                   <div>
                     <h3 className="font-semibold text-gray-900">

@@ -26,9 +26,11 @@ export interface Doctor {
         email:string;
         image:string;
         phone:string;
-        dob:string
+        dob:string;
         role:'user'|'admin' | 'doctor';
-        address:string
+        address:string;
+        gender:string;
+
     };
     speciality:string;
     fees:number;

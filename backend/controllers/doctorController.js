@@ -1,6 +1,7 @@
 import Appointment from '../models/Appointment.js';
 import Doctor from '../models/Doctor.js'
 import { calculateAge } from '../utils/helper.js';
+import {v2 as cloudinary} from 'cloudinary';
 
 
 export const changeAvailability=async(req,res) => {
@@ -55,7 +56,7 @@ export const getDoctorByToken=async(req,res) => {
         if(!doctor){
             return res.json({success:false,message:"Doctor not found"})
         }
-        const populatedDoctor=await doctor.populate("user","name email phone image role address")
+        const populatedDoctor=await doctor.populate("user","name email phone image role address dob gender")
          res.json({ success: true, message: "Doctor fetched successfully", doctor:populatedDoctor });
     } catch (error) {
         res.json({success:false,message:"Server error"})
@@ -139,4 +140,57 @@ export const getDoctorPatients=async(req,res) => {
         
     }
    
+}
+
+export const updateDoctorProfile=async(req,res)=> {
+
+    try {
+        const doctorId=req.doctor._id;
+        const {name,phone,address,speciality,experience,fees,dob,gender,degree,about}=req.body;
+        // return res.json({success:true,doctor})
+
+        const doctor=await Doctor.findById(doctorId).populate("user");
+        if(!doctor){
+            return res.json({success:false,message:"Doctor not found"})
+        }
+//          if(!name || !phone || !dob || !gender ) {
+//     console.log("Missing fields",{
+// name,phone,address,speciality,experience,fees,dob,gender
+//     });
+//     return res.json({success:false,message:"Data Missing"})
+//   }
+    // ✅ Update user-related fields
+    if (name) doctor.user.name = name;
+    if (phone) doctor.user.phone = phone;
+    if (address) doctor.user.address = address;
+    if (dob ) doctor.user.dob = dob;
+    if (gender) doctor.user.gender = gender;
+
+    // ✅ Update doctor-related fields
+    if (speciality) doctor.speciality = speciality;
+    if (experience) doctor.experience = experience;
+    if (fees) doctor.fees = fees;
+    if (degree) doctor.degree = degree;
+    if (about) doctor.about = about;
+
+        const imageFile=req.file;
+        if(imageFile){
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { folder:"MedCare", resource_type:"image" });
+            if(imageUpload) doctor.user.image = imageUpload.secure_url;
+        }
+
+        
+        await doctor.user.save();
+        await doctor.save();
+        const updatedDoctor=await Doctor.findById(doctorId).populate({
+            path:"user",
+            select:"-password"
+        })
+
+        res.json({success:true,message:"Doctor profile updated successfully",doctor:updatedDoctor});
+    } catch (error) {
+        console.error(error);
+    res.status(500).json({success:false,message:"Server error" });
+    }
+
 }

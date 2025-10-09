@@ -3,6 +3,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { DoctorState, Doctor } from "../../utils/schema";
+import { setUser } from "./authSlice";
+import { toast } from "react-toastify";
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const initialState: DoctorState = {
@@ -180,6 +182,32 @@ export const fetchDoctorPatients=createAsyncThunk<{success:boolean;patients:any[
     }
 );
 
+// UPDATE DOCTOR PROFILE
+export const updateDoctorProfile = createAsyncThunk<
+  { success: boolean; doctor: Doctor; message: string },
+  FormData,
+  { rejectValue: string }
+>("doctor/updateDoctorProfile", async (doctorData, { rejectWithValue, getState,dispatch }) => {
+  try {
+    const state = getState() as { auth: { token: string | null } };
+    const token = state.auth.token;
+    if (!token) return rejectWithValue("No auth token found");
+
+    const { data } = await axios.put(`${BACKEND_API}/api/doctor/update-profile`, doctorData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    // Update auth state user
+    dispatch(setUser(data.doctor.user));
+    return { success: data.success, doctor: data.doctor, message: data.message };
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Server error");
+  }
+});
+
 const doctorSlice = createSlice({
   name: "doctors",
   initialState,
@@ -301,6 +329,24 @@ const doctorSlice = createSlice({
         state.loading=false;
         state.error=action.payload || "Failed to fetch doctor patients";
       })    
+      .addCase(updateDoctorProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        updateDoctorProfile.fulfilled,
+        (state, action: PayloadAction<{ success: boolean; doctor: Doctor ,message:string}>) => {
+          state.loading = false;
+          if (action.payload.success && action.payload.doctor) {
+            state.doctor = action.payload.doctor;
+            toast.success("Doctor profile updated.")
+          }
+        }
+      )
+      .addCase(updateDoctorProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to update doctor profile";
+      });
 
   },
 
