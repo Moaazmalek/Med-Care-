@@ -19,36 +19,14 @@ const AdminLayout = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
       
-      {/* Top bar */}
-      {/* <div className="flex items-center justify-between bg-white shadow px-4 py-3">
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)} 
-            className="p-2 rounded-md hover:bg-gray-100"
-          >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <img 
-            src={logo} 
-            alt="MedCare Logo" 
-            className="h-10 w-auto cursor-pointer" 
-            onClick={() => navigate('/admin/dashboard')}
-          />
-        </div>
-        <div>
-          <span className="text-gray-700">
-            <UserMenu name="Admin" />
-          </span>
-        </div>
-      </div> */}
-
-      {/* Sidebar overlay */}
-      {/* {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setSidebarOpen(false)}></div>
-      )} */}
 
       {/* Sidebar panel */}
       <div className="md:w-64  bg-white shadow-lg fixed h-full">
+        <div className=" flex  md:justify-start justify-center ">
+          <img src={logo} alt="med care logo"
+        className="w-20 cursor-pointer" 
+        onClick={() => navigate("/")}/>
+        </div>
         <div className="p-6">
           <nav className="space-y-2">
             <button
@@ -97,11 +75,11 @@ const AdminLayout = () => {
       </div>
 
        {/* Main Content */}
-      <div className="md:ml-64 ml-20 flex-1 p-8">
+      <div className="p-8 flex-1 md:ml-64 ml-20">
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold text-gray-900">Doctor Panel</h1>
-          <p className="text-gray-600"><Outlet/></p>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard </h1>
         </div>
+          <Outlet/>
         </div>
     </div>
   )

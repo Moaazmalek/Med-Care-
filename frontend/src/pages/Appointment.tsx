@@ -76,6 +76,9 @@ const Appointment = () => {
     }
   };
   const handleBooking = async () => {
+    if(!user){
+      toast.warning("You must be logged in to book an appointment");
+    }
     if (!doctorInfo || !doctorSlot[slotIndex] || !selectedTime) {
       toast.error("Please select a date and time slot");
       return;

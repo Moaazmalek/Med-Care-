@@ -18,7 +18,7 @@ export const bookAppointment=createAsyncThunk("appointments/bookAppointment",asy
     const state=getState() as {auth:{token:string|null}};
     const token=state.auth.token;
     if(!token){
-        toast.warning("You must be logged in to book an appointment");
+        // toast.warning("You must be logged in to book an appointment");
         return rejectWithValue("User not authenticated");
     }
 
@@ -44,7 +44,7 @@ export const fetchAppointmentsByDoctor=createAsyncThunk("appointments/fetchByDoc
     const state=getState() as {auth:{token:string|null}};
     const token=state.auth.token;       
     if(!token){
-        toast.warning("You must be logged in to view appointments");
+        // toast.warning("You must be logged in to view appointments");
         return rejectWithValue("User not authenticated");
     }
     try{
@@ -60,7 +60,7 @@ export const fetchAppointmentsByDoctor=createAsyncThunk("appointments/fetchByDoc
             return rejectWithValue(response.data.message);
         }
     }catch(error:any){
-        toast.error(error.message);
+        // toast.error(error.message);
         return rejectWithValue(error.message);
     }
 });
@@ -146,7 +146,7 @@ export const fetchTodaysAppointments=createAsyncThunk("appointments/fetchTodaysA
     const state=getState() as {auth:{token:string|null}};
     const token=state.auth.token;
     if(!token){
-        toast.warning("You must be logged in to view appointments");
+        // toast.warning("You must be logged in to view appointments");
         return rejectWithValue("User not authenticated");
     }
       const today=new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
@@ -196,7 +196,7 @@ const appointmentSlice=createSlice({
         .addCase(fetchAppointmentsByDoctor.rejected,(state,action)=>{
             state.loading=false;
             state.error=action.payload as string;
-            toast.error(action.payload as string);
+            // toast.error(action.payload as string);
         })
         .addCase(fetchUserAppointments.pending,(state)=>{
             state.loading=true;
@@ -208,7 +208,7 @@ const appointmentSlice=createSlice({
         .addCase(fetchUserAppointments.rejected,(state,action)=>{
             state.loading=false;
             state.error=action.payload as string;
-            toast.error(action.payload as string);
+            // toast.error(action.payload as string);
         })
         .addCase(cancelAppointment.pending,(state)=>{
             state.loading=true;

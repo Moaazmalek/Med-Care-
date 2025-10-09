@@ -117,10 +117,10 @@ const Dashboard = () => {
             {todaysAppointments.map((appointment) => (
               <div
                 key={appointment._id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex flex-col md:flex-row gap-3 md:gap-0 items-center md:justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full"></div>
+                <div className="flex items-center space-x-4 ">
+                  <div className="hidden md:block w-12 h-12 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full"></div>
                   <div>
                     <h4 className="font-semibold text-gray-900">
                       {appointment.user.name}
@@ -130,8 +130,8 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
+                <div className="flex flex-col md:flex-row gap-4 md:gap-0 items-center space-x-4">
+                  <div className="text-right ">
                     <p className="font-medium text-gray-900">
                       {appointment.time}
                     </p>
@@ -147,7 +147,7 @@ const Dashboard = () => {
                     <div className="flex space-x-2">
                       <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
+                        className="bg-green-600 hover:bg-green-700 text-white cursor-pointer"
                         onClick={() =>
                           handleCompleteAppointment(appointment._id)
                         }
@@ -159,7 +159,7 @@ const Dashboard = () => {
                       icon={<Button
                         size="sm"
                         variant="outline"
-                        className="border-red-500 text-red-500 hover:bg-red-50"
+                        className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer"
                         
                       >
                         <XCircle size={16} />

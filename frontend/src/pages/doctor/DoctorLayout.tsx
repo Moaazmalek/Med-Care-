@@ -29,37 +29,14 @@ const DoctorLayout = () => {
       }
   return (
         <div className="min-h-screen bg-gray-50">
-             {/* Top bar */}
-      {/* <div className="flex items-center justify-between bg-white shadow px-4 py-3">
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)} 
-            className="p-2 rounded-md hover:bg-gray-100 cursor-pointer"
-          >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <img 
-            src={logo} 
-            alt="MedCare Logo" 
-            className="h-10 w-auto cursor-pointer" 
-            onClick={() => navigate('/admin/dashboard')}
-          />
-        </div>
-        <div>
-          <span className="text-gray-700">
-            <UserMenu name="Doctor" />
-          </span>
-        </div>
-      </div> */}
-
-    {/**Side bar overlay */}
-    {/* {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/20 z-40"
-        onClick={() => setSidebarOpen(false)}></div>
-    )}
-       */}
+        
       {/* Sidebar panel */}
       <div className="md:w-64 bg-white shadow-lg fixed h-full">
+        <div className=" flex  md:justify-start justify-center ">
+          <img src={logo} alt="med care logo"
+        className="w-20 cursor-pointer" 
+        onClick={() => navigate("/")}/>
+        </div>
         <div className="p-6  ">
              {/* Doctor Info */}
           <div className="mb-8 pb-6 border-b md:block hidden">
@@ -128,6 +105,7 @@ const DoctorLayout = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Doctor Panel</h1>
           <p className="text-gray-600">Welcome back, Doctor</p>
+          
         </div>
         <Outlet/>
       </div>

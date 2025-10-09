@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    alert('Thank you for contacting us! We will get back to you soon.')
+    toast.success(`Thank ${formData.name} for contacting us! We will get back to you soon.`)
     setFormData({ name: '', email: '', subject: '', message: '' })
   }
 

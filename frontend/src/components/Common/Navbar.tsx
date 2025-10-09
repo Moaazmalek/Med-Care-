@@ -3,11 +3,13 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import logo from "../../assets/med-care-logo.svg";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
+import {   useSelector } from "react-redux";
+import type{   RootState } from "@/redux/store";
 import UserMenu from "./UserMenu";
+import MyLoader from "../Global/MyLoader";
 
 const Navbar = () => {
+  // const dispatch=useDispatch<AppDispatch>();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const {user,loading}=useSelector((state:RootState) => state.auth);
@@ -17,8 +19,15 @@ const Navbar = () => {
     { name: "All Doctors", path: "/doctors" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
-  ];
 
+    
+  ];
+  
+
+  if(loading){
+    return <MyLoader/>
+  }
+  
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,6 +36,7 @@ const Navbar = () => {
           <NavLink to="/" className="flex items-center space-x-2">
             <img src={logo} alt="MedCare Logo" className="h-16 w-auto" />
           </NavLink>
+        
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -73,12 +83,15 @@ const Navbar = () => {
           
 
           {/* Mobile Menu Button */}
+            
+              
           <button
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+           
         </div>
 
         {/* Mobile Menu */}
@@ -107,6 +120,8 @@ const Navbar = () => {
               >
                 Login
               </Button>
+              
+              
               <Button
                 onClick={() => {
                   navigate("/signup");

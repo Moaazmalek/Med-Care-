@@ -114,6 +114,7 @@ export const getDoctorPatients=async(req,res) => {
                         email:user.email,
                         phone:user.phone,
                         age:calculateAge(user.dob.toString()),
+                        image:user.image,
                     },
                     totalVisits:1,
                     lastVisit:appt.date

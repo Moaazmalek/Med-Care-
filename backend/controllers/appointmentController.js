@@ -65,7 +65,11 @@ export const getAppointmentsByDoctor=async(req,res) => {
         }
         
         const appointments=await Appointment.find(filter)
-        .populate({'path':'user','select':'name email phone image address'}).sort({createdAt:-1})
+        .populate("user")
+        .populate({
+            path:"doctor",
+            populate:{path:"user"}
+        }).sort({createdAt:-1})
         res.json({success:true,appointments});
     } catch (error) {
         console.error(error);
@@ -154,8 +158,14 @@ export const completeAppointment=async(req,res) => {
       await doctor.save()
  
     }
+    const populatedAppointment=await Appointment.findById(appointment._id)
+    .populate("user")
+.populate({
+    path:"doctor",
+    populate:{path:"user"}
+})
     
-       res.json({success:true,message:"Appointment cancelled successfully",appointment});
+       res.json({success:true,message:"Appointment cancelled successfully",appointment:populatedAppointment});
     } catch (error) {
         console.log(error);
         res.json({success:false,message:"Server error"});

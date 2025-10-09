@@ -19,9 +19,9 @@ const UserMenu = ({ name, role }: UserMenuProps) => {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu >
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-md hover:bg-gray-200">
+        <button className="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer">
           <span>{name}</span>
           <User size={20} />
         </button>
