@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from 'react'
 import { useNavigate, useLocation, Outlet } from 'react-router'
-import { Activity, Calendar, Users, LogOut, Menu, X, UserPen } from 'lucide-react'
+import { Activity, Calendar, Users, LogOut,  UserPen } from 'lucide-react'
 import logo from "@/assets/logo_option_2.png"
-import UserMenu from '@/components/Common/UserMenu'
 import { useDispatch } from 'react-redux'
 import type{ AppDispatch } from '@/redux/store'
 import { logout } from '@/redux/slices/authSlice'
@@ -12,7 +10,6 @@ const AdminLayout = () => {
   const dispatch=useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const location = useLocation()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const isActive = (path: string) => location.pathname === path
 
@@ -30,7 +27,7 @@ const AdminLayout = () => {
         <div className="p-6">
           <nav className="space-y-2">
             <button
-              onClick={() => { navigate('/admin/dashboard'); setSidebarOpen(false); }}
+              onClick={() => { navigate('/admin/dashboard'); }}
               className={`w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive('/admin/dashboard') ? 'bg-chart-2 text-white' : 'text-gray-700 hover:bg-gray-100'
               }`}
@@ -40,7 +37,7 @@ const AdminLayout = () => {
             </button>
 
             <button
-              onClick={() => { navigate('/admin/appointments'); setSidebarOpen(false); }}
+              onClick={() => { navigate('/admin/appointments'); }}
               className={`w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive('/admin/appointments') ? 'bg-chart-2 text-white' : 'text-gray-700 hover:bg-gray-100'
               }`}
@@ -50,7 +47,7 @@ const AdminLayout = () => {
             </button>
 
             <button
-              onClick={() => { navigate('/admin/doctors'); setSidebarOpen(false); }}
+              onClick={() => { navigate('/admin/doctors'); }}
               className={`w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive('/admin/doctors') ? 'bg-chart-2 text-white' : 'text-gray-700 hover:bg-gray-100'
               }`}
@@ -59,7 +56,7 @@ const AdminLayout = () => {
               <span className='hidden md:block'>Doctors</span>
             </button>
             <button
-              onClick={() => { navigate('/profile'); setSidebarOpen(false); }}
+              onClick={() => { navigate('/profile'); }}
               className={`w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive('/profile') ? 'bg-chart-2 text-white' : 'text-gray-700 hover:bg-gray-100'
               }`}
