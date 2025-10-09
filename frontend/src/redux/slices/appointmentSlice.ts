@@ -9,6 +9,7 @@ const BACKEND_API=import.meta.env.VITE_BACKEND_API
 const initialState:AppointmentState ={
     doctorAppointments:[],
     userAppointments:[],
+    todaysAppointments:[],
     loading:false,
     error:null
 }
@@ -17,7 +18,7 @@ export const bookAppointment=createAsyncThunk("appointments/bookAppointment",asy
     const state=getState() as {auth:{token:string|null}};
     const token=state.auth.token;
     if(!token){
-        toast.warning("You must be logged in to book an appointment");
+        // toast.warning("You must be logged in to book an appointment");
         return rejectWithValue("User not authenticated");
     }
 
@@ -43,7 +44,7 @@ export const fetchAppointmentsByDoctor=createAsyncThunk("appointments/fetchByDoc
     const state=getState() as {auth:{token:string|null}};
     const token=state.auth.token;       
     if(!token){
-        toast.warning("You must be logged in to view appointments");
+        // toast.warning("You must be logged in to view appointments");
         return rejectWithValue("User not authenticated");
     }
     try{
@@ -59,7 +60,7 @@ export const fetchAppointmentsByDoctor=createAsyncThunk("appointments/fetchByDoc
             return rejectWithValue(response.data.message);
         }
     }catch(error:any){
-        toast.error(error.message);
+        // toast.error(error.message);
         return rejectWithValue(error.message);
     }
 });
@@ -114,6 +115,57 @@ export const cancelAppointment=createAsyncThunk("appointments/cancelAppointment"
         return rejectWithValue(error.message);
     }
 });
+export const completeAppointment=createAsyncThunk("appointments/completeAppointment",async(appointmentId:string,{rejectWithValue,getState})=>{
+    const state=getState() as {auth:{token:string|null}};
+    const token=state.auth.token;
+
+    if(!token){
+        toast.warning("You must be logged in to complete an appointment");
+        return rejectWithValue("User not authenticated");
+    }
+
+    try{
+        const response=await axios.post(`${BACKEND_API}/api/appointment/complete-appointment/${appointmentId}`,{},{
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        });
+        if(response.data.success){
+            return response.data.appointment;
+        }else{
+            toast.error(response.data.message);
+            return rejectWithValue(response.data.message);
+        }
+    }catch(error:any){
+        toast.error(error.message);
+        return rejectWithValue(error.message);
+    }
+});
+
+export const fetchTodaysAppointments=createAsyncThunk("appointments/fetchTodaysAppointments",async(doctorId:string,{rejectWithValue,getState})=>{
+    const state=getState() as {auth:{token:string|null}};
+    const token=state.auth.token;
+    if(!token){
+        // toast.warning("You must be logged in to view appointments");
+        return rejectWithValue("User not authenticated");
+    }
+      const today=new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    try {
+        const {data}=await axios.get(`${BACKEND_API}/api/appointment/doctor/${doctorId}?date=${today}`,{
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        });
+        if(data.success){
+            return data.appointments
+        }else{
+            return rejectWithValue("Failed to fetch today's appointments")
+        }
+    }catch(error:any){
+        console.log(error)
+        return rejectWithValue("Failed to fetch today's appointments")
+    }
+});
 
 const appointmentSlice=createSlice({
     name:"appointment",
@@ -144,7 +196,7 @@ const appointmentSlice=createSlice({
         .addCase(fetchAppointmentsByDoctor.rejected,(state,action)=>{
             state.loading=false;
             state.error=action.payload as string;
-            toast.error(action.payload as string);
+            // toast.error(action.payload as string);
         })
         .addCase(fetchUserAppointments.pending,(state)=>{
             state.loading=true;
@@ -156,7 +208,7 @@ const appointmentSlice=createSlice({
         .addCase(fetchUserAppointments.rejected,(state,action)=>{
             state.loading=false;
             state.error=action.payload as string;
-            toast.error(action.payload as string);
+            // toast.error(action.payload as string);
         })
         .addCase(cancelAppointment.pending,(state)=>{
             state.loading=true;
@@ -169,6 +221,33 @@ const appointmentSlice=createSlice({
             }
         })
         .addCase(cancelAppointment.rejected,(state,action)=>{
+            state.loading=false;
+            state.error=action.payload as string;
+            toast.error(action.payload as string);
+        })
+        .addCase(completeAppointment.pending,(state)=>{
+            state.loading=true;
+        })
+        .addCase(completeAppointment.fulfilled,(state,action)=>{
+            state.loading=false;
+            const index=state.doctorAppointments.findIndex(apt=>apt._id===action.payload._id);
+            if(index!==-1){
+                state.doctorAppointments[index]=action.payload;
+            }
+        })
+        .addCase(completeAppointment.rejected,(state,action)=>{
+            state.loading=false;
+            state.error=action.payload as string;
+            toast.error(action.payload as string);
+        })
+        .addCase(fetchTodaysAppointments.pending,(state)=>{
+            state.loading=true;
+        })
+        .addCase(fetchTodaysAppointments.fulfilled,(state,action)=>{
+            state.loading=false;
+            state.todaysAppointments=action.payload;
+        })
+        .addCase(fetchTodaysAppointments.rejected,(state,action)=>{
             state.loading=false;
             state.error=action.payload as string;
             toast.error(action.payload as string);

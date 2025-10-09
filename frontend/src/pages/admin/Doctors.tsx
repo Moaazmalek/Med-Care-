@@ -102,7 +102,7 @@ if (loading) {
 
   return (
     <>
-      <div className="mb-6 flex flex-col sm:flex-row  gap-4 sm:items-center ">
+      <div className="my-6 flex flex-col sm:flex-row  gap-4 sm:items-center ">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <Input
@@ -266,48 +266,6 @@ if (loading) {
         </Card>
       )}
 
-      {/* <Card>
-        <CardHeader>
-          <CardTitle>All Doctors</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Name</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">speciality</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Experience</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Email</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Phone</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDoctors.map((doctor) => (
-                  <tr key={doctor._id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium">{doctor.user.name}</td>
-                    <td className="py-3 px-4">{doctor.speciality}</td>
-                    <td className="py-3 px-4">{doctor.experience}</td>
-                    <td className="py-3 px-4">{doctor.user.email}</td>
-                    <td className="py-3 px-4">{doctor.user.phone}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-800">
-                          <Edit size={18} />
-                        </button>
-                        <button className="text-red-600 hover:text-red-800">
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card> */}
       <Card>
   <CardHeader>
     <CardTitle>All Doctors</CardTitle>

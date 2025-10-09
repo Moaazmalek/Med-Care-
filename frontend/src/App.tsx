@@ -21,6 +21,7 @@ import DoctorLayout from "./pages/doctor/DoctorLayout"
 import Dashboard from "./pages/doctor/Dashboard"
 import Appointments from "./pages/doctor/Appointments"
 import { Patients } from "./pages/doctor/Patients"
+import DoctorProfile from "./pages/doctor/DoctorProfile"
 
 
 const App = () => {
@@ -48,7 +49,7 @@ const App = () => {
         <Route path="/appointment/:docId" element={<Appointment/>} />
         <Route  path="/my-appointments" element={<MyAppointments/>} />
         <Route  path="/my-appointments/:id" element={<MyAppointments/>} />
-        <Route path="profile" element={<MyProfile />} />
+        <Route path="profile" element={ user?.role==="doctor" ? <Navigate to="/doctor/profile" /> : <MyProfile />} />
         </Route>
         <Route 
         path="/admin"
@@ -83,6 +84,7 @@ const App = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="appointments" element={<Appointments />} />
           <Route path="patients" element={<Patients />} />
+          <Route path="profile" element={<DoctorProfile />} />
         </Route>
               
 

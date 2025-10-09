@@ -3,10 +3,14 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { DoctorState, Doctor } from "../../utils/schema";
+import { setUser } from "./authSlice";
+import { toast } from "react-toastify";
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const initialState: DoctorState = {
-  doctor:null,
+  patients: [],
+  dashboardData: null,
+  doctor: null,
   doctors: [] as Doctor[],
   loading: false,
   error: null,
@@ -61,13 +65,7 @@ export const fetchDoctor = createAsyncThunk<{success:boolean;doctors:Doctor[]},v
   }
 );
 
-// export const deleteDoctor=createAsyncThunk("",async(id:string,{rejectWithValue,getState}) => {
-//     const state=getState() as {auth:{token:string | null}}
-//     const token=state.auth.token;
-//     if(!token){
-//         return rejectWithValue("No auth token found")
-//     }
-// })
+
 
 export const changeAvailability=createAsyncThunk<{success:boolean;message:string;doctor:Doctor}, {id:string;available:boolean}, {rejectValue:string}>(
   "doctor/changeAvailability",
@@ -132,6 +130,83 @@ export const fetchCurrentDoctor=createAsyncThunk<{success:boolean;doctor:Doctor}
     }
   }
 );
+
+
+export const fetchDoctorDashboardData=createAsyncThunk<{success:boolean;data:{appointmentsCount:number,patientsCount:number,earnings:number}},void,{rejectValue:string}>(
+    "doctor/fetchDashboardData",
+    async(_, { rejectWithValue,getState}) => {  
+        const state=getState() as {auth:{token:string | null}}
+        const token=state.auth.token;
+        if(!token){
+            return rejectWithValue("No auth token found")
+        }
+        try {
+            const {data}=await axios.get(`${BACKEND_API}/api/doctor/dashboard-data`,{
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if(data.success){
+                return data;
+            } else{
+                return rejectWithValue(data.message || "Failed to fetch doctor dashboard data");
+            }
+        } catch (error) {
+            return rejectWithValue(error.response.data.message || "Server error");
+        }
+    }
+);
+
+export const fetchDoctorPatients=createAsyncThunk<{success:boolean;patients:any[]},void,{rejectValue:string}>(
+    "doctor/fetchPatients",
+    async(_, { rejectWithValue,getState}) => {
+        const state=getState() as {auth:{token:string | null}}
+        const token=state.auth.token;
+        if(!token){
+            return rejectWithValue("No auth token found")
+        }
+        try {
+            const {data}=await axios.get(`${BACKEND_API}/api/doctor/patients`,{
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if(data.success){
+                return data;
+            } else{
+                return rejectWithValue(data.message || "Failed to fetch doctor patients");
+            }
+        } catch (error) {
+            return rejectWithValue(error.response.data.message || "Server error");
+        }
+    }
+);
+
+// UPDATE DOCTOR PROFILE
+export const updateDoctorProfile = createAsyncThunk<
+  { success: boolean; doctor: Doctor; message: string },
+  FormData,
+  { rejectValue: string }
+>("doctor/updateDoctorProfile", async (doctorData, { rejectWithValue, getState,dispatch }) => {
+  try {
+    const state = getState() as { auth: { token: string | null } };
+    const token = state.auth.token;
+    if (!token) return rejectWithValue("No auth token found");
+
+    const { data } = await axios.put(`${BACKEND_API}/api/doctor/update-profile`, doctorData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    // Update auth state user
+    dispatch(setUser(data.doctor.user));
+    return { success: data.success, doctor: data.doctor, message: data.message };
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Server error");
+  }
+});
 
 const doctorSlice = createSlice({
   name: "doctors",
@@ -225,6 +300,52 @@ const doctorSlice = createSlice({
       .addCase(fetchCurrentDoctor.rejected,(state,action)=>{
         state.loading=false;
         state.error=action.payload || "Failed to fetch current doctor";
+      })
+      .addCase(fetchDoctorDashboardData.pending,(state)=>{
+        state.loading=true;
+        state.error=null;
+      })
+      .addCase(fetchDoctorDashboardData.fulfilled,(state,action:PayloadAction<{success:boolean;data:{appointmentsCount:number,patientsCount:number,earnings:number}}>)=>{
+        state.loading=false;
+        if(action.payload.success && action.payload.data){
+          state.dashboardData=action.payload.data;
+        }
+      })
+      .addCase(fetchDoctorDashboardData.rejected,(state,action)=>{
+        state.loading=false;
+        state.error=action.payload || "Failed to fetch doctor dashboard data";
+      })
+      .addCase(fetchDoctorPatients.pending,(state)=>{
+        state.loading=true;
+        state.error=null;
+      })
+      .addCase(fetchDoctorPatients.fulfilled,(state,action:PayloadAction<{success:boolean;patients:any[]}>)=>{
+        state.loading=false;
+        if(action.payload.success && action.payload.patients){
+          state.patients=action.payload.patients;
+        }
+      })
+      .addCase(fetchDoctorPatients.rejected,(state,action)=>{
+        state.loading=false;
+        state.error=action.payload || "Failed to fetch doctor patients";
+      })    
+      .addCase(updateDoctorProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        updateDoctorProfile.fulfilled,
+        (state, action: PayloadAction<{ success: boolean; doctor: Doctor ,message:string}>) => {
+          state.loading = false;
+          if (action.payload.success && action.payload.doctor) {
+            state.doctor = action.payload.doctor;
+            toast.success("Doctor profile updated.")
+          }
+        }
+      )
+      .addCase(updateDoctorProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to update doctor profile";
       });
 
   },

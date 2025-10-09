@@ -1,127 +1,165 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react'
-import { useParams } from 'react-router' // ✅ must be -dom
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Calendar, Clock, Award, DollarSign, MapPin } from 'lucide-react'
-import { toast } from 'react-toastify'
-import { useDispatch, useSelector } from 'react-redux'
-import type { AppDispatch, RootState } from '@/redux/store'
-import MyLoader from '@/components/Global/MyLoader'
-import { fetchDoctorById } from '@/redux/slices/doctorSlice'
-import type { Doctor } from '@/utils/schema'
-import { bookAppointment, fetchAppointmentsByDoctor } from '@/redux/slices/appointmentSlice'
+import { useState, useEffect } from "react";
+import { useParams } from "react-router"; // ✅ must be -dom
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Clock, Award, DollarSign, MapPin } from "lucide-react";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store";
+import MyLoader from "@/components/Global/MyLoader";
+import { fetchDoctorById } from "@/redux/slices/doctorSlice";
+import type { Doctor } from "@/utils/schema";
+import {
+  bookAppointment,
+  fetchAppointmentsByDoctor,
+} from "@/redux/slices/appointmentSlice";
 
 const Appointment = () => {
-  const { docId } = useParams()
-  const [doctorInfo, setDoctorInfo] = useState<Doctor | null>(null)
-  const [doctorSlot, setDoctorSlot] = useState<any[][]>([]) // slots grouped by day
-  const [slotIndex, setSlotIndex] = useState<number>(0)
-  const [selectedTime, setSelectedTime] = useState<string>('')  
-  const {doctors,loading,error}=useSelector((state:RootState) => state.doctor)
-  const {user}=useSelector((state:RootState) => state.auth)
-  // const {appointments}=useSelector((state:RootState) => state.appointment)
-  const dispatch=useDispatch<AppDispatch>();
+  const { docId } = useParams();
+  const [doctorInfo, setDoctorInfo] = useState<Doctor | null>(null);
+  const [doctorSlot, setDoctorSlot] = useState<any[][]>([]); // slots grouped by day
+  const [slotIndex, setSlotIndex] = useState<number>(0);
+  const [selectedTime, setSelectedTime] = useState<string>("");
+  const { doctors, loading, error } = useSelector(
+    (state: RootState) => state.doctor
+  );
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { doctorAppointments } = useSelector(
+    (state: RootState) => state.appointment
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
   const getAvailableSlots = () => {
-    const today = new Date()
-    const allSlots: any[][] = []
+    const today = new Date();
+    const allSlots: any[][] = [];
 
     for (let i = 0; i < 7; i++) {
-  const currentDate = new Date(today)
-  currentDate.setDate(today.getDate() + i)
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
 
-  const startTime = new Date(currentDate)
-  startTime.setHours(10, 0, 0, 0) // ✅ Start every day at 10:00 AM
+      const startTime = new Date(currentDate);
+      startTime.setHours(10, 0, 0, 0); // ✅ Start every day at 10:00 AM
 
-  const endTime = new Date(currentDate)
-  endTime.setHours(21, 0, 0, 0) // 9:00 PM
+      const endTime = new Date(currentDate);
+      endTime.setHours(21, 0, 0, 0); // 9:00 PM
 
-  const timeSlots: any[] = []
-  const dateKey=currentDate.toISOString().split('T')[0];
-  while (startTime < endTime) {
-    const dateTime=new Date(startTime)
-    const formattedTime = dateTime.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    const isBooked=doctorInfo?.slots_booked?.[dateKey]?.includes(formattedTime) || false;
-    if(!isBooked)
-    timeSlots.push({
-      datetime: dateTime,
-      time: formattedTime,
-    })
-    startTime.setMinutes(startTime.getMinutes() + 30)
-  }
+      const timeSlots: any[] = [];
+      const dateKey = currentDate.toISOString().split("T")[0];
+      while (startTime < endTime) {
+        const dateTime = new Date(startTime);
+        const formattedTime = dateTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const isBooked =
+          doctorInfo?.slots_booked?.[dateKey]?.includes(formattedTime) || false;
 
-  if (timeSlots.length > 0) {
-    allSlots.push(timeSlots)
-  }
-}
+          // Skip slots that are in the past for today's date
+          const isToday=dateKey===today.toISOString().split("T")[0];
+          if(isToday && dateTime <= today){
+            startTime.setMinutes(startTime.getMinutes() + 30)
+            continue;
 
+          }
+        if (!isBooked)
+          timeSlots.push({
+            datetime: dateTime,
+            time: formattedTime,
+          });
+        startTime.setMinutes(startTime.getMinutes() + 30);
+      }
 
-    setDoctorSlot(allSlots)
-  }
-
-  const handleBooking = async () => {
-    if (!doctorInfo || !doctorSlot[slotIndex] || !selectedTime) {
-      toast.error('Please select a date and time slot')
-      return
+      if (timeSlots.length > 0) {
+        allSlots.push(timeSlots);
+      }
     }
 
-    const bookingDate=doctorSlot[slotIndex][0].datetime.toISOString().split('T')[0];
-   await dispatch(bookAppointment({
-    userId:user._id,
-    doctorId:doctorInfo._id,
-    date:bookingDate,
-    time:selectedTime
-   }))
-   .unwrap()
- // 1️⃣ Update doctorInfo.slots_booked locally
-    const updatedSlotsBooked = { ...doctorInfo.slots_booked }
-    if (!updatedSlotsBooked[bookingDate]) updatedSlotsBooked[bookingDate] = []
-    updatedSlotsBooked[bookingDate].push(selectedTime)
+    setDoctorSlot(allSlots);
+  };
+  const refreshDoctorInfo = async () => {
+    if (docId) {
+      const res = await dispatch(fetchDoctorById(docId)).unwrap();
+      setDoctorInfo(res.doctor);
+    }
+  };
+  const handleBooking = async () => {
+    if(!user){
+      toast.warning("You must be logged in to book an appointment");
+    }
+    if (!doctorInfo || !doctorSlot[slotIndex] || !selectedTime) {
+      toast.error("Please select a date and time slot");
+      return;
+    }
+
+    const bookingDate = doctorSlot[slotIndex][0].datetime
+      .toISOString()
+      .split("T")[0];
+    await dispatch(
+      bookAppointment({
+        userId: user._id,
+        doctorId: doctorInfo._id,
+        date: bookingDate,
+        time: selectedTime,
+      })
+    ).unwrap();
+    await refreshDoctorInfo();
+    // 1️⃣ Update doctorInfo.slots_booked locally
+    const updatedSlotsBooked = { ...doctorInfo.slots_booked };
+    if (!updatedSlotsBooked[bookingDate]) updatedSlotsBooked[bookingDate] = [];
+    updatedSlotsBooked[bookingDate].push(selectedTime);
 
     setDoctorInfo({
       ...doctorInfo,
-      slots_booked: updatedSlotsBooked
-    })
+      slots_booked: updatedSlotsBooked,
+    });
 
     // 2️⃣ Clear selection
-    setSelectedTime('')
-    setSlotIndex(0)
-  }
+    setSelectedTime("");
+    setSlotIndex(0);
+  };
 
   useEffect(() => {
-    if(!docId) return ;
-    const existingDoctor=doctors.find(doc=>doc._id===docId);
-    if(existingDoctor){
+    if (!docId) return;
+    const existingDoctor = doctors.find((doc) => doc._id === docId);
+    if (existingDoctor) {
       setDoctorInfo(existingDoctor);
-    }else {
-      dispatch(fetchDoctorById(docId)).unwrap()
-      .then(res => setDoctorInfo(res.doctor))
-      .catch(() => toast.error('Failed to fetch doctor details'));
+    } else {
+      dispatch(fetchDoctorById(docId))
+        .unwrap()
+        .then((res) => setDoctorInfo(res.doctor))
+        .catch(() => toast.error("Failed to fetch doctor details"));
     }
-    
-  }, [docId,dispatch,doctors])
+  }, [docId, dispatch, doctors]);
 
   useEffect(() => {
-    if (doctorInfo) getAvailableSlots()
-  }, [doctorInfo])
-useEffect(() => {
-  if (doctorInfo?._id) {
-    dispatch(fetchAppointmentsByDoctor(doctorInfo._id))
+    if (doctorInfo) getAvailableSlots();
+  }, [doctorInfo]);
+  useEffect(() => {
+    if (doctorInfo?._id) {
+      dispatch(fetchAppointmentsByDoctor(doctorInfo._id));
+    }
+  }, [doctorInfo, dispatch]);
+ 
+  useEffect(() => {
+    if(doctorInfo) getAvailableSlots();
+  },[doctorInfo,doctorAppointments])
+  if (loading) {
+    return <MyLoader />;
   }
-}, [doctorInfo, dispatch])
-
-  if(loading ){
-    return <MyLoader/>
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        {JSON.stringify(error)}
+      </div>
+    );
   }
-  if(error){
-    return <div className='flex justify-center items-center h-[80vh]'>{JSON.stringify(error)}</div>
-  }
-  if(!doctorInfo){
-    return <div className='flex justify-center items-center h-[80vh]'>Doctor not found</div>
+  if (!doctorInfo) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        Doctor not found
+      </div>
+    );
   }
   return (
     <div className="flex-grow bg-gray-50">
@@ -131,11 +169,11 @@ useEffect(() => {
           <div className="md:col-span-1">
             <Card>
               <CardContent className="p-6">
-                 <img
-            src={doctorInfo.user.image }
-            alt={doctorInfo.user.name}
-            className="w-full h-40 object-contain bg-gradient-to-r from-teal-400/20 to-teal-500/70 hover:from-teal-400 hover:to-teal-500 transition-all duration-300"
-          />
+                <img
+                  src={doctorInfo.user.image}
+                  alt={doctorInfo.user.name}
+                  className="w-full h-40 object-contain bg-gradient-to-r from-teal-400/20 to-teal-500/70 hover:from-teal-400 hover:to-teal-500 transition-all duration-300"
+                />
 
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {doctorInfo.user.name}
@@ -173,23 +211,25 @@ useEffect(() => {
                 </h3>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-8">
                   {doctorSlot.map((slots, index) => {
-                    const dateLabel = slots[0].datetime.toDateString().slice(0, 10)
+                    const dateLabel = slots[0].datetime
+                      .toDateString()
+                      .slice(0, 10);
                     return (
                       <button
                         key={index}
                         onClick={() => {
-                          setSlotIndex(index)
-                          setSelectedTime('')
+                          setSlotIndex(index);
+                          setSelectedTime("");
                         }}
                         className={`p-3 rounded-lg border-2 transition-all ${
                           slotIndex === index
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-gray-200 hover:border-primary'
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-gray-200 hover:border-primary"
                         }`}
                       >
                         <div className="text-sm font-semibold">{dateLabel}</div>
                       </button>
-                    )
+                    );
                   })}
                 </div>
 
@@ -204,8 +244,8 @@ useEffect(() => {
                       onClick={() => setSelectedTime(slot.time)}
                       className={`p-3 rounded-lg border-2 transition-all ${
                         selectedTime === slot.time
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-gray-200 hover:border-primary'
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-gray-200 hover:border-primary"
                       }`}
                     >
                       <div className="text-sm font-semibold">{slot.time}</div>
@@ -226,7 +266,7 @@ useEffect(() => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Appointment
+export default Appointment;
