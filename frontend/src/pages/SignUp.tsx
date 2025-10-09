@@ -4,8 +4,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import logo from '../assets/logo_option_2.png'
+import { useDispatch } from 'react-redux'
+import type{ AppDispatch } from '@/redux/store'
+import { registerUser } from '@/redux/slices/authSlice'
+import { toast } from 'react-toastify'
 
 const SignUp = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
@@ -27,7 +32,11 @@ const SignUp = () => {
       alert('Passwords do not match!')
       return
     }
-    alert('Account created successfully!')
+    dispatch(registerUser({name:formData.fullName,email:formData.email,password:formData.password }))
+    .then(() => {
+      toast.success("Registration successful! Please log in.");
+    })
+
     navigate('/login')
   }
 
