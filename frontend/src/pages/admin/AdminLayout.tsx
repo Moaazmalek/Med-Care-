@@ -119,7 +119,7 @@ const AdminLayout = () => {
             isActive("/") ? "text-chart-2" : "text-gray-500"
           }`}
         >
-          Dashboard
+          Home
         </span>
         {isActive("/") && (
           <div className="mt-1 w-5 h-[2px] bg-chart-2 rounded-full"></div>
