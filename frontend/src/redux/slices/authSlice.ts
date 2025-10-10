@@ -21,7 +21,10 @@ export const registerUser = createAsyncThunk<
   { rejectValue: string }
 >("auth/registerUser", async (userData, { rejectWithValue }) => {
   try {
-    const { data } = await axios.post(`${BACKEND_API}/api/auth/register`, userData);
+    const { data } = await axios.post(
+      `${BACKEND_API}/api/auth/register`,
+      userData
+    );
     return data;
   } catch (error: any) {
     return rejectWithValue("Registration failed");
@@ -35,7 +38,10 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >("auth/loginUser", async (loginData, { rejectWithValue }) => {
   try {
-    const { data } = await axios.post(`${BACKEND_API}/api/auth/login`, loginData);
+    const { data } = await axios.post(
+      `${BACKEND_API}/api/auth/login`,
+      loginData
+    );
     if (data.success) {
       localStorage.setItem("token", data.token);
       return data;
@@ -70,26 +76,33 @@ export const updateUserProfile = createAsyncThunk<
   { success: boolean; user: User; message: string },
   FormData,
   { rejectValue: string }
->("auth/updateUserProfile", async (userData, { rejectWithValue, getState, dispatch }) => {
-  try {
-    const state = getState() as { auth: { token: string | null } };
-    const token = state.auth.token;
-    if (!token) return rejectWithValue("No auth token found");
+>(
+  "auth/updateUserProfile",
+  async (userData, { rejectWithValue, getState, dispatch }) => {
+    try {
+      const state = getState() as { auth: { token: string | null } };
+      const token = state.auth.token;
+      if (!token) return rejectWithValue("No auth token found");
 
-    const { data } = await axios.put(`${BACKEND_API}/api/user/update-profile`, userData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      const { data } = await axios.put(
+        `${BACKEND_API}/api/user/update-profile`,
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    // Update auth state user
-    dispatch(setUser(data.user));
-    return { success: data.success, user: data.user, message: data.message };
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || "Server error");
+      // Update auth state user
+      dispatch(setUser(data.user));
+      return { success: data.success, user: data.user, message: data.message };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Server error");
+    }
   }
-});
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -108,24 +121,60 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Register
-      .addCase(registerUser.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(registerUser.fulfilled, (state) => { state.loading = false; state.error = null; })
-      .addCase(registerUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
       // Login
-      .addCase(loginUser.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(loginUser.fulfilled, (state, action) => { state.loading = false; state.token = action.payload.token; })
-      .addCase(loginUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
       // Fetch Current User
-      .addCase(fetchCurrentUser.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchCurrentUser.fulfilled, (state, action) => { state.user = action.payload.user; state.loading = false; })
-      .addCase(fetchCurrentUser.rejected, (state, action) => { state.loading = false; state.error = action.payload || "Failed to fetch user"; })
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.loading = false;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch user";
+      })
 
       // Update User Profile
-      .addCase(updateUserProfile.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(updateUserProfile.fulfilled, (state, action) => { state.loading = false; state.user = action.payload.user; })
-      .addCase(updateUserProfile.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
