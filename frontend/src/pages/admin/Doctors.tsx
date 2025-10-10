@@ -114,7 +114,7 @@ if (loading) {
         </div>
         <Button 
           onClick={() => setShowAddDoctor(true)}
-          className="bg-primary hover:bg-primary/90 text-white"
+          className="bg-chart-2/90 hover:bg-chart-2 text-white"
         >
           <UserPlus size={20} className="mr-2" />
           Add Doctor

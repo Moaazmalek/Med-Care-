@@ -62,10 +62,10 @@ const Home = () => {
               </p>
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white"
+                className="bg-chart-2/90 hover:bg-chart-2 text-white cursor-pointer"
                 onClick={() => navigate('/doctors')}
               >
-                Find Doctors <ArrowRight className="ml-2" size={20} />
+                Find Doctors <ArrowRight className="ml-2 " size={20} />
               </Button>
             </div>
             <div className="relative">

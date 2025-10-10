@@ -49,7 +49,7 @@ const App = () => {
         <Route path="/appointment/:docId" element={<Appointment/>} />
         <Route  path="/my-appointments" element={<MyAppointments/>} />
         <Route  path="/my-appointments/:id" element={<MyAppointments/>} />
-        <Route path="profile" element={ user?.role==="doctor" ? <Navigate to="/doctor/profile" /> : <MyProfile />} />
+        <Route path="profile" element={ user?.role==="doctor" || user?.role==="admin" ? <Navigate to="/doctor/profile" /> : <MyProfile />} />
         </Route>
         <Route 
         path="/admin"
@@ -67,6 +67,8 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="appointments" element={<AdminAppointments />} />
           <Route path="doctors" element={<AdminDoctors />} />
+          <Route path="profile" element={<MyProfile />} />
+          
           </Route>
           <Route 
         path="/doctor"

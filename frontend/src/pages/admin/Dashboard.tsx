@@ -57,7 +57,7 @@ const dispatch = useDispatch<AppDispatch>();
 
 
   return (
-    <div className="p-6 min-h-screen bg-gray-50">
+    <div className="mt-6 min-h-screen bg-gray-50">
       
 
       {/* Top Stats */}

@@ -1,4 +1,4 @@
-import { Activity, Calendar, LogOut,  UserPen, Users,} from "lucide-react"
+import { Activity, Calendar, Home, LogOut,  UserPen, Users,} from "lucide-react"
 import { useEffect } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router"
 import logo from "@/assets/logo_option_2.png"
@@ -28,7 +28,7 @@ const DoctorLayout = () => {
         <div className="min-h-screen bg-gray-50">
         
       {/* Sidebar panel */}
-      <div className="md:w-64 bg-white shadow-lg fixed h-full">
+      <div className="hidden md:block w-64 bg-white shadow-lg fixed h-full">
         <div className=" flex  md:justify-start justify-center ">
           <img src={logo} alt="med care logo"
         className="w-20 cursor-pointer" 
@@ -97,7 +97,7 @@ const DoctorLayout = () => {
         </div>
       </div>
        {/* Main content */}
-      <div className="p-8 flex-1 md:ml-64 ml-20">
+      <div className="p-8 flex-1 md:ml-64  mb-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Doctor Panel</h1>
           <p className="text-gray-600">Welcome back, {doctor.user.name}</p>
@@ -105,6 +105,111 @@ const DoctorLayout = () => {
         </div>
         <Outlet/>
       </div>
+       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full bg-gray-50 border border-gray-200  shadow-lg py-2 px-4 flex justify-around items-center z-50 md:hidden">
+      <button
+        onClick={() => navigate("/")}
+        className={`flex flex-col items-center transition-all duration-300 cursor-pointer ${
+          isActive("/")
+            ? "text-teal-500"
+            : "text-gray-400 hover:text-chart-2"
+        }`}
+      >
+        <Home size={22} />
+        <span
+          className={`text-[11px] mt-1 font-medium ${
+            isActive("/") ? "text-chart-2" : "text-gray-500"
+          }`}
+        >
+          Home
+        </span>
+        {isActive("/") && (
+          <div className="mt-1 w-5 h-[2px] bg-chart-2 rounded-full"></div>
+        )}
+      </button>
+      <button
+        onClick={() => navigate("/doctor/dashboard")}
+        className={`flex flex-col items-center transition-all duration-300 cursor-pointer ${
+          isActive("/doctor/dashboard")
+            ? "text-teal-500"
+            : "text-gray-400 hover:text-chart-2"
+        }`}
+      >
+        <Activity size={22} />
+        <span
+          className={`text-[11px] mt-1 font-medium ${
+            isActive("/doctor/dashboard") ? "text-chart-2" : "text-gray-500"
+          }`}
+        >
+          Dashboard
+        </span>
+        {isActive("/doctor/dashboard") && (
+          <div className="mt-1 w-5 h-[2px] bg-chart-2 rounded-full"></div>
+        )}
+      </button>
+
+      <button
+        onClick={() => navigate("/doctor/appointments")}
+        className={`flex flex-col items-center transition-all duration-300  cursor-pointer ${
+          isActive("/doctor/appointments")
+            ? "text-teal-500"
+            : "text-gray-400 hover:text-chart-2"
+        }`}
+      >
+        <Calendar size={22} />
+        <span
+          className={`text-[11px] mt-1 font-medium ${
+            isActive("/doctor/appointments") ? "text-chart-2" : "text-gray-500"
+          }`}
+        >
+          Appointments
+        </span>
+        {isActive("/doctor/appointments") && (
+          <div className="mt-1 w-5 h-[2px] bg-chart-2 rounded-full"></div>
+        )}
+      </button>
+
+      <button
+        onClick={() => navigate("/doctor/patients")}
+        className={`flex flex-col items-center transition-all duration-300 cursor-pointer ${
+          isActive("/doctor/patients")
+            ? "text-chart-2"
+            : "text-gray-400 hover:text-chart-2"
+        }`}
+      >
+        <Users size={22} />
+        <span
+          className={`text-[11px] mt-1 font-medium ${
+            isActive("/doctor/patients") ? "text-chart-2" : "text-gray-500"
+          }`}
+        >
+          Patients
+        </span>
+        {isActive("/doctor/patients") && (
+          <div className="mt-1 w-5 h-[2px] bg-chart-2 rounded-full"></div>
+        )}
+      </button>
+
+      <button
+        onClick={() => navigate("/doctor/profile")}
+        className={`flex flex-col items-center transition-all duration-300 cursor-pointer ${
+          isActive("/doctor/profile")
+            ? "text-chart-2"
+            : "text-gray-400 hover:text-chart-2"
+        }`}
+      >
+        <UserPen size={22} />
+        <span
+          className={`text-[11px] mt-1 font-medium ${
+            isActive("/doctor/profile") ? "text-chart-2" : "text-gray-500"
+          }`}
+        >
+          My Profile
+        </span>
+        {isActive("/doctor/profile") && (
+          <div className="mt-1 w-5 h-[2px] bg-chart-2 rounded-full"></div>
+        )}
+      </button>
+    </div>
     </div>
   )
 }

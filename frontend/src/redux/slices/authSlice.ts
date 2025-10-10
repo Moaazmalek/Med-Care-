@@ -3,6 +3,7 @@
 import type { AuthState, User } from "@/utils/schema";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 const tokenFromStorage = localStorage.getItem("token") || null;
@@ -47,6 +48,8 @@ export const loginUser = createAsyncThunk<
       return data;
     }
   } catch (error: any) {
+    console.log("ERROR RESPONSE",error.response.data)
+    toast.error(error.response?.data?.message || "Login failed. Please try again.");
     return rejectWithValue("Login failed");
   }
 });

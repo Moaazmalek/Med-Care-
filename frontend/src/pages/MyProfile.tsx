@@ -62,7 +62,7 @@ const Profile = () => {
     })
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
    try {
   const formData=new FormData();
   formData.append("name",profileData.name);
@@ -70,11 +70,11 @@ const Profile = () => {
   formData.append("phone",profileData.phone);
   formData.append("address",profileData.address || "");
   formData.append("dob",profileData.dateOfBirth || "");
-  formData.append("gender",profileData.gender || "");
+  formData.append("gender",profileData.gender || "not specified");
   if(profileImage){
     formData.append("image",profileImage);
   }
-  dispatch(updateUserProfile(formData));
+ await dispatch(updateUserProfile(formData));
 toast.success("Profile updated successfully!");
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    } catch (error:any) {

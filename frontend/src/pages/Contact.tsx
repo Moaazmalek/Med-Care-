@@ -14,9 +14,30 @@ const Contact = () => {
     message: '',
   })
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    toast.success(`Thank ${formData.name} for contacting us! We will get back to you soon.`)
+    toast.success("Sending...")
+
+    const form_data = new FormData();
+    form_data.append("access_key", import.meta.env.VITE_WEBSITE3_FORM_API_KEY);
+    form_data.append("name", formData.name);
+    form_data.append("email", formData.email);
+    form_data.append("subject", formData.subject);
+    form_data.append("message", formData.message);
+
+
+    const response=await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: form_data,
+    })
+    const data=await response.json()
+    if(data.success){
+      toast.success(`Thanks ${formData.name} for contacting us! We will get back to you soon.`)
+    }else {
+      console.log("ERROR",data)
+      toast.error("Message failed to send")
+    }
+   
     setFormData({ name: '', email: '', subject: '', message: '' })
   }
 
@@ -157,7 +178,7 @@ const Contact = () => {
                       </div>
                       <Button 
                         type="submit" 
-                        className="w-full bg-primary hover:bg-primary/90 text-white"
+                        className="w-full bg-chart-2/90 hover:bg-chart-2 cursor-pointer text-white"
                       >
                         Send Message
                       </Button>

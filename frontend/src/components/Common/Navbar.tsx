@@ -81,6 +81,15 @@ const Navbar = () => {
               </>
             )}
           </div>
+          {/**Mobile profile Icon */}
+          <div className="md:hidden  flex items-center gap-3">
+          
+            {loading ? (
+              <MyLoader />
+            ) : user ? (
+              <UserMenu role={user.role} />
+            ) : null}
+        
 
           {/* Mobile Menu Button */}
 
@@ -90,6 +99,7 @@ const Navbar = () => {
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -157,7 +167,7 @@ const Navbar = () => {
                       navigate("/login");
                       setIsMenuOpen(false);
                     }}
-                    className="w-full hover:bg-chart-2 hover:text-white transition-all duration-200"
+                    className="w-full hover:bg-chart-2 hover:text-white cursor-pointer transition-all duration-200"
                   >
                     Login
                   </Button>
@@ -167,7 +177,7 @@ const Navbar = () => {
                       navigate("/signup");
                       setIsMenuOpen(false);
                     }}
-                    className="w-full bg-primary hover:bg-primary/90 text-white"
+                    className="w-full bg-chart-2/90 hover:bg-chart-2 cursor-pointer text-white"
                   >
                     Sign Up
                   </Button>

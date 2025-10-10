@@ -6,7 +6,7 @@ import type{ AppDispatch } from "@/redux/store";
 import { logout } from "@/redux/slices/authSlice";
 
 interface UserMenuProps {
-  name: string;
+  name?: string;
   role?: string;
 }
 const UserMenu = ({ name, role }: UserMenuProps) => {
@@ -22,13 +22,13 @@ const UserMenu = ({ name, role }: UserMenuProps) => {
     <DropdownMenu >
       <DropdownMenuTrigger asChild>
         <button className="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer">
-          <span>{name}</span>
+          {name && <span className="font-medium">{name}</span>}
           <User size={20} />
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-48">
-         {role !=="doctor" && (
+         {role !=="doctor" && role !=="admin" && (
           <DropdownMenuItem onClick={() => navigate("/profile")}>
           <User size={16} className="mr-2" /> Profile
         </DropdownMenuItem>
