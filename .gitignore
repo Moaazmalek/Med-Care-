@@ -41,7 +41,7 @@ Thumbs.db
 # MongoDB dump files
 dump/
 *.bson
-*.json
+
 
 # Cache
 .cache/
