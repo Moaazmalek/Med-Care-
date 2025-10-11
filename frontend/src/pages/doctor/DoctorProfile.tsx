@@ -3,14 +3,24 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Phone, MapPin, Calendar } from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar as CalendarIcon } from "lucide-react";
 import uploadArea from "@/assets/upload_area.svg";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import type{ AppDispatch,  RootState } from "@/redux/store";
 import MyLoader from "@/components/Global/MyLoader";
 import { updateDoctorProfile } from "@/redux/slices/doctorSlice";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { format } from "date-fns";
+import { PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar"
 const DoctorProfile = () => {
   const dispatch=useDispatch<AppDispatch>();
   const [isEditing, setIsEditing] = useState(false);
@@ -47,6 +57,7 @@ const DoctorProfile = () => {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLSelectElement>
       | React.ChangeEvent<HTMLTextAreaElement>
+      | { target: { name: string; value: string } }
   ) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
@@ -181,22 +192,48 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date of Birth
-                </label>
-                <div className="flex items-center">
-                  <Calendar className="mr-2 text-gray-400" size={20} />
-                  <Input
-                    type="date"
-                    name="dateOfBirth"
-                    value={profileData.dateOfBirth}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className={!isEditing ? "bg-gray-50" : ""}
-                  />
-                </div>
-              </div>
+             <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Date of Birth
+  </label>
+
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        className={`w-full justify-start text-left font-normal ${
+          !isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+        }`}
+        disabled={!isEditing}
+      >
+        <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
+        {profileData.dateOfBirth ? (
+          format(new Date(profileData.dateOfBirth), "dd/MM/yyyy")
+        ) : (
+          <span>Select date</span>
+        )}
+      </Button>
+    </PopoverTrigger>
+
+    <PopoverContent className="w-auto p-0">
+      <Calendar
+        mode="single"
+        selected={profileData.dateOfBirth ? new Date(profileData.dateOfBirth) : undefined}
+        onSelect={(date) => {
+          if (date) {
+            handleChange({
+              target: {
+                name: "dateOfBirth",
+                value: date.toISOString().split("T")[0],
+              },
+            })
+          }
+        }}
+        disabled={!isEditing}
+      />
+    </PopoverContent>
+  </Popover>
+</div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -215,24 +252,31 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Gender
-                </label>
-                <select
-                  name="gender"
-                  value={profileData.gender}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    !isEditing ? "bg-gray-100" : "bg-white text-gray-900"
-                  }`}
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="not specified">Not Specified</option>
-                </select>
-              </div>
+           <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Gender
+  </label>
+
+  <Select
+    value={profileData.gender}
+    onValueChange={(value) => handleChange({ target: { name: "gender", value } })}
+    disabled={!isEditing}
+  >
+    <SelectTrigger
+      className={`w-full px-3 py-2 border rounded-md ${
+        !isEditing ? "bg-gray-100 cursor-not-allowed" : "bg-white text-gray-900"
+      }`}
+    >
+      <SelectValue placeholder="Select gender" />
+    </SelectTrigger>
+
+    <SelectContent className="max-h-48">
+      <SelectItem value="male">Male</SelectItem>
+      <SelectItem value="female">Female</SelectItem>
+      <SelectItem value="not specified">Not Specified</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
 
               {/* Doctor Fields */}
               <div>
